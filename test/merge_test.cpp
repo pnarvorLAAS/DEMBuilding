@@ -8,7 +8,7 @@ int main(int argc, char * argv[]) {
     std::cout << "atlaas merge/slide test..." << std::endl;
 
     atlaas::atlaas test;
-    test.init(120.0, 120.0, 0.1, 0, 0, 0, 31, true);
+    test.init(120.0, 120.0, 0.1, 10, 10, 10, 31, true);
 
     atlaas::points cloud = atlaas::random_cloud();
     atlaas::matrix transformation = atlaas::identity;

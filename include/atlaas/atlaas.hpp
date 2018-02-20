@@ -542,6 +542,15 @@ public:
     std::string pcd_time_str() const {
         return to_string(pcd_time);
     }
+
+    //ADDING METHODS FOR INFUSE
+    const cells_info_t& get_dyninter() const {
+        return dyninter;
+    }
+
+    void infuse_transform(points& cloud, const matrix& transformation, bool dump);
+
+    void infuse_rasterize(const points& cloud);
 };
 
 } // namespace atlaas
