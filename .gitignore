@@ -1,0 +1,15 @@
+# folders
+tmp/
+build/
+# python
+*.pyc
+# other files
+*~
+# atlaas
+_atlaas.cpp
+_atlaas.so
+atlaas.*.tif
+atlaas.jpg*
+cloud.*.*
+out.*
+*.bak
