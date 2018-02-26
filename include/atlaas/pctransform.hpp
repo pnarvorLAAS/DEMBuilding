@@ -20,7 +20,7 @@ class cloudTransform
         /* Internal variables */
         
         Eigen::Quaterniond q; // Store incoming quaternion into msg
-        Eigen::Matrix3d rotation; // Store rotation matrix comupted from quaternion
+        Eigen::Matrix3d rotation; // Store rotation matrix computed from quaternion
         Eigen::Matrix4d homoTrans; // Store homogenous transformation
 
 
@@ -30,6 +30,17 @@ class cloudTransform
         bool update_transform(/*pointCloudMsg,tfSensor2World*/);
         bool update_pointCloud(/*pointCloudMsg,pointCloud*/);
         bool transform_pointCloud(/*pointCloud*/);
+
+        /* Setters and getters for DEBUG */
+
+        bool set_transform(matrix tfToSet)
+        {
+            tfSensor2World=tfToSet;
+        };
+        bool set_pointCloud(points pcToSet)
+        {
+            pointCloud=pcToSet;
+        };
 };
 
 };

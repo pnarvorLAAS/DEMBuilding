@@ -22,7 +22,7 @@ include_directories(include)
 include_directories(${GDALWRAP_INCLUDE_DIRS})
 include_directories(${GSL_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIRS})
-include_directories(/home/quentin/Work/code/CDFF_at_LAAS/Common/Types/C/)
+include_directories(../../Types/C/)
 
 # Load the 'install_pkg_config_file' macro
 include(InstallPkgConfigFile)
