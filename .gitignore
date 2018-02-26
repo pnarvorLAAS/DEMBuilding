@@ -5,6 +5,7 @@ build/
 *.pyc
 # other files
 *~
+*.swp
 # atlaas
 _atlaas.cpp
 _atlaas.so
