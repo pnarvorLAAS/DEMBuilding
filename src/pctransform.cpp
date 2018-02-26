@@ -29,6 +29,7 @@ namespace atlaas{
         homoTrans(0,3) = pcMsgInput.pose.pos.arr[0];
         homoTrans(1,3) = pcMsgInput.pose.pos.arr[1];
         homoTrans(2,3) = pcMsgInput.pose.pos.arr[2];
+
         for (int i=0; i<4;i++)
         {
             for (int j=0; j<4;j++)
@@ -45,17 +46,28 @@ namespace atlaas{
         auto it = pointCloud.begin();
         for (int i=0; i < pcMsgInput.pointCloud.points.nCount; i++)
         {
-           (*it)[0] = pcMsgInput.pointCloud.points.arr[i].arr[0]; 
-           (*it)[1] = pcMsgInput.pointCloud.points.arr[i].arr[1]; 
-           (*it)[2] = pcMsgInput.pointCloud.points.arr[i].arr[2]; 
-           (*it)[3] = pcMsgInput.pointCloud.points.arr[i].arr[3]; 
+            (*it)[0] = pcMsgInput.pointCloud.points.arr[i].arr[0]; 
+            (*it)[1] = pcMsgInput.pointCloud.points.arr[i].arr[1]; 
+            (*it)[2] = pcMsgInput.pointCloud.points.arr[i].arr[2]; 
+            (*it)[3] = pcMsgInput.pointCloud.points.arr[i].arr[3]; 
         }
         return true;
     }
     bool cloudTransform::transform_pointCloud(/*pointCloud*/)
     {
+        float x,y,z;
+        for (auto& point : pointCloud) 
+        {
+            x = point[0];
+            y = point[1];
+            z = point[2];
+            point[0] = (x * tfSensor2World[0]) + (y * tfSensor2World[1]) + (z * tfSensor2World[2])  + tfSensor2World[3];
+            point[1] = (x * tfSensor2World[4]) + (y * tfSensor2World[5]) + (z * tfSensor2World[6])  + tfSensor2World[7];
+            point[2] = (x * tfSensor2World[8]) + (y * tfSensor2World[9]) + (z * tfSensor2World[10]) + tfSensor2World[11];
+        }
         return true;
     }
+
 }
 
 #endif
