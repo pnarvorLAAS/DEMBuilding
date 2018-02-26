@@ -14,10 +14,12 @@ class cloudTransform
         PointCloudPoseStamped pointCloudMsg;
 
     public:
-        bool decode_message(BitStream &msg);
+        bool decode_message(BitStream msg);
         bool update_transform(/*pointCloudMsg,tfSensor2World*/);
         bool update_pointCloud(/*pointCloudMsg,pointCloud*/);
         bool transform_pointCloud(/*pointCloud*/);
+};
+
 };
 
 
