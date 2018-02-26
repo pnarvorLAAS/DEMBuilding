@@ -3,7 +3,6 @@
 
 #include <atlaas/pctransform.hpp>
 #include <iostream>
-#include <Eigen/Geometry>
 
 namespace atlaas{
 
@@ -13,7 +12,7 @@ namespace atlaas{
         int errorCode;
         BitStream_AttachBuffer(&b,msg.buf,BitStream_GetLength(&msg));
 
-        if (!PointCloudPoseStamped_Decode(&pointCloudMsg,&b,&errorCode))
+        if (!PointCloudPoseStamped_Decode(&pcMsgInput,&b,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
@@ -21,16 +20,29 @@ namespace atlaas{
         return true;
     }
 
-    bool update_transform(/*pointCloudMsg,tfSensor2World*/)
+    bool cloudTransform::update_transform(/*pointCloudMsg,tfSensor2World*/)
     {
-        Eigen::Matrix4d translation;
+        //Update quaternion from msg
+        q = Eigen::Quaterniond(pcMsgInput.pose.orient.arr);
+        //Convert to rotation matrix
+        homoTrans.block<3,3>(0,0) = q.normalized().toRotationMatrix();
+        homoTrans(0,3) = pcMsgInput.pose.pos.arr[0];
+        homoTrans(1,3) = pcMsgInput.pose.pos.arr[1];
+        homoTrans(2,3) = pcMsgInput.pose.pos.arr[2];
+        for (int i=0; i<4;i++)
+        {
+            for (int j=0; j<4;j++)
+            {
+                tfSensor2World[i*4 + j] = homoTrans(i,j);
+            }
+        }
         return true;
     }
-    bool update_pointCloud(/*pointCloudMsg,pointCloud*/)
+    bool cloudTransform::update_pointCloud(/*pointCloudMsg,pointCloud*/)
     {
         return true;
     }
-    bool transform_pointCloud(/*pointCloud*/)
+    bool cloudTransform::transform_pointCloud(/*pointCloud*/)
     {
         return true;
     }

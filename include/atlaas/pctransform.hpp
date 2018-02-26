@@ -3,15 +3,27 @@
 
 #include <PointCloudPoseStamped.h>
 #include <atlaas/common.hpp>
+#include <Eigen/Geometry>
 
 namespace atlaas {
 
 class cloudTransform
 {
     private:
-        points pointCloud;
+
+        /* Inputs and outputs of the DFN */
+        points pointCloud; 
         matrix tfSensor2World;
-        PointCloudPoseStamped pointCloudMsg;
+        PointCloudPoseStamped pcMsgInput; // Message to decode
+        PointCloudPoseStamped pcMsgOutput; // Encoded message to publish
+
+        /* Internal variables */
+        
+        Eigen::Quaterniond q; // Store incoming quaternion into msg
+        Eigen::Matrix3d rotation; // Store rotation matrix comupted from quaternion
+        Eigen::Matrix4d homoTrans; // Store homogenous transformation
+
+
 
     public:
         bool decode_message(BitStream msg);
