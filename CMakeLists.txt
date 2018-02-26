@@ -16,10 +16,13 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 find_package(GdalWrap REQUIRED)
 # least square, see region.hpp, lstsq.cpp
 find_package(GSL REQUIRED)
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 include_directories(include)
 include_directories(${GDALWRAP_INCLUDE_DIRS})
 include_directories(${GSL_INCLUDE_DIRS})
+include_directories(${EIGEN3_INCLUDE_DIRS})
+include_directories(/home/quentin/Work/code/CDFF_at_LAAS/Common/Types/C/)
 
 # Load the 'install_pkg_config_file' macro
 include(InstallPkgConfigFile)
