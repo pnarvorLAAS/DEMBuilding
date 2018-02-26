@@ -1,4 +1,4 @@
-file(GLOB atlaas_SRCS "*.cpp")
+file(GLOB atlaas_SRCS "*.cpp" "../../../Types/C/*.c")
 add_library( atlaas SHARED ${atlaas_SRCS} )
 target_link_libraries( atlaas ${GDALWRAP_LIBRARIES} )
 target_link_libraries( atlaas ${GSL_LIBRARIES} )
