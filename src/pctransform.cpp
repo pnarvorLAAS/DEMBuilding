@@ -38,8 +38,18 @@ namespace atlaas{
         }
         return true;
     }
+
     bool cloudTransform::update_pointCloud(/*pointCloudMsg,pointCloud*/)
     {
+        pointCloud.resize(pcMsgInput.pointCloud.points.nCount);
+        auto it = pointCloud.begin();
+        for (int i=0; i < pcMsgInput.pointCloud.points.nCount; i++)
+        {
+           (*it)[0] = pcMsgInput.pointCloud.points.arr[i].arr[0]; 
+           (*it)[1] = pcMsgInput.pointCloud.points.arr[i].arr[1]; 
+           (*it)[2] = pcMsgInput.pointCloud.points.arr[i].arr[2]; 
+           (*it)[3] = pcMsgInput.pointCloud.points.arr[i].arr[3]; 
+        }
         return true;
     }
     bool cloudTransform::transform_pointCloud(/*pointCloud*/)
