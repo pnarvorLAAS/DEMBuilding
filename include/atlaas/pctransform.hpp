@@ -23,6 +23,10 @@ class cloudTransform
         Eigen::Matrix3d rotation; // Store rotation matrix computed from quaternion
         Eigen::Matrix4d homoTrans; // Store homogenous transformation
 
+        /* Test variabes */
+
+        int cloudSize;
+
 
 
     public:
@@ -37,10 +41,27 @@ class cloudTransform
         {
             tfSensor2World=tfToSet;
         };
-        bool set_pointCloud(points pcToSet)
+
+        matrix get_transform()
+        {
+            return tfSensor2World;
+        };
+
+        bool set_pointCloud(points pcToSet,int size)
         {
             pointCloud=pcToSet;
+            cloudSize = size;
         };
+
+        points get_pointCloud()
+        {
+            return pointCloud;
+        };
+
+        int get_cloudSize()
+        {
+            return cloudSize;
+        }
 };
 
 };
