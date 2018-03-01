@@ -71,7 +71,7 @@ endif(BUILD_DOC)
 # Install headers
 file(GLOB atlaas_HDRS "include/atlaas/*.hpp")
 install(FILES ${atlaas_HDRS} DESTINATION include/atlaas)
-file(GLOB types_HDRS "../../Types/C/.h")
+file(GLOB types_HDRS "../../Types/C/*.h")
 install(FILES ${types_HDRS} DESTINATION include)
 
 #########################################################################
