@@ -18,6 +18,42 @@ namespace atlaas{
         }
         return true;
     }
+    
+    bool pcRasterizer::update_transform(/*pcMsgInput,tfSensor2World*/)
+    {
+        //Update quaternion from msg
+        q = Eigen::Quaterniond(pcMsgInput.pose.pose.orient.arr);
+        //Convert to rotation matrix
+        homoTrans.block<3,3>(0,0) = q.normalized().toRotationMatrix();
+        homoTrans(0,3) = pcMsgInput.pose.pose.pos.arr[0];
+        homoTrans(1,3) = pcMsgInput.pose.pose.pos.arr[1];
+        homoTrans(2,3) = pcMsgInput.pose.pose.pos.arr[2];
+
+        for (int i=0; i<4;i++)
+        {
+            for (int j=0; j<4;j++)
+            {
+                tfSensor2World[i*4 + j] = homoTrans(i,j);
+            }
+        }
+        return true;
+    }
+    
+    bool pcRasterizer::update_pointCloud(/*pointCloudMsg,pointCloud*/)
+    {
+        pointCloud.resize(pcMsgInput.pointCloudData.nCount);
+        auto it = pointCloud.begin();
+        for (int i=0; i < pcMsgInput.pointCloudData.nCount; i++)
+        {
+            (*it)[0] = pcMsgInput.pointCloudData.arr[i].arr[0]; 
+            (*it)[1] = pcMsgInput.pointCloudData.arr[i].arr[1]; 
+            (*it)[2] = pcMsgInput.pointCloudData.arr[i].arr[2]; 
+            (*it)[3] = pcMsgInput.pointCloudData.arr[i].arr[3]; 
+        }
+        return true;
+    }
+
+
 
     void pcRasterizer::init(double size_x,double size_y, double scale,
             double custom_x, double custom_y, double custom_z,

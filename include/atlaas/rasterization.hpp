@@ -2,8 +2,10 @@
 #define __RASTERIZATION_HPP__
 
 #include <PointCloudPoseStamped.h>
+#include <DEM.h>
 #include <gdalwrap/gdal.hpp>
 #include <atlaas/common.hpp>
+#include <Eigen/Geometry>
 
 namespace atlaas{
 
@@ -15,9 +17,13 @@ namespace atlaas{
             points                  pointCloud;
             matrix                  tfSensor2World;
             PointCloudPoseStamped   pcMsgInput;
-            // demRaster            demMsgOutPut;
+            DigitalElevationMap     demMsgOutPut;
 
             /* Internal variables */
+
+            Eigen::Quaterniond q; // Store incoming quaternion into msg
+            Eigen::Matrix3d rotation; // Store rotation matrix computed from quaternion
+            Eigen::Matrix4d homoTrans; // Store homogenous transformation
 
             gdalwrap::gdal          meta;
             cells_info_t            dyninter;
@@ -38,6 +44,8 @@ namespace atlaas{
         public:
 
             bool decode_message(BitStream msg);
+            bool update_transform(/*pointCloudMsg,tfSensor2World*/);
+            bool update_pointCloud(/*pointCloudMsg,pointCloud*/);
             void init(double size_x,double size_y, double scale,
                     double custom_x, double custom_y, double custom_z,
                     int utm_zone, bool utm_north);
@@ -45,7 +53,8 @@ namespace atlaas{
             void do_slide();
             bool slide(/*sensor_xy, meta*/);
             void set_time_base(uint64_t base);
-            BitStream encode_message(/*demMsgOutput*/);
+            bool update_outputMsg(/*demMsgOutput*/);
+            BitStream encode_message(/*demMsgOutput, dyninter*/);
 
 
     };
