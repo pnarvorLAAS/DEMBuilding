@@ -63,6 +63,8 @@ namespace atlaas{
         width  = std::ceil(size_x / scale); 
         height = std::ceil(size_y / scale);
 
+        scaleMap = scale;
+
         //Metadata to know what tiles we need
         meta.set_size(width, height); // does not change the container
         meta.set_transform(custom_x, custom_y, scale, -scale);
@@ -151,6 +153,27 @@ namespace atlaas{
         const auto& utm = meta.point_pix2utm(sw * dx, sh * dy);
         // update map transform used for merging the pointcloud
         meta.set_transform(utm[0], utm[1], meta.get_scale_x(), meta.get_scale_y());
+        return true;
+    }
+            
+    bool pcRasterizer::update_outputMsg(/*demMsgOutput*/)
+    {
+        //Update current tile
+        demMsgOutput.currentTile.arr[0] = current[0];
+        demMsgOutput.currentTile.arr[1] = current[1];
+
+        //Map size
+        demMsgOutput.nbLines = height;
+        demMsgOutput.nbCols = width;
+        demMsgOutput.scale = scaleMap;
+        demMsgOutput.zOrigin = 0.0;
+        demMsgOutput.zScale = 1.0;
+        memcpy(&demMsgOutput.zValue.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
+
+    //T_Float xOrigin;
+    //T_Float yOrigin;
+    //DigitalElevationMap_state state;
+
         return true;
     }
 

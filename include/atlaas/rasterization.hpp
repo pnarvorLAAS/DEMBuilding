@@ -17,7 +17,7 @@ namespace atlaas{
             points                  pointCloud;
             matrix                  tfSensor2World;
             PointCloudPoseStamped   pcMsgInput;
-            DigitalElevationMap     demMsgOutPut;
+            DigitalElevationMap     demMsgOutput;
 
             /* Internal variables */
 
@@ -36,6 +36,7 @@ namespace atlaas{
             size_t                  height;
             int                     sw;
             int                     sh;
+            float                   scaleMap;
 
             uint64_t                time_base;
 
