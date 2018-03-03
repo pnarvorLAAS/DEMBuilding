@@ -34,6 +34,8 @@ class cloudTransform
         bool update_transform(/*pointCloudMsg,tfSensor2World*/);
         bool update_pointCloud(/*pointCloudMsg,pointCloud*/);
         bool transform_pointCloud(/*pointCloud*/);
+        bool update_outputMsg(/*pcMsgOutput,pointCloud, tfSensor2World*/);
+        BitStream encode_message(/*pcMsgOutput*/);
 
         /* Setters and getters for DEBUG */
 
