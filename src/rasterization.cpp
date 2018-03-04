@@ -170,9 +170,10 @@ namespace atlaas{
         demMsgOutput.zScale = 1.0;
         memcpy(&demMsgOutput.zValue.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
 
-    //T_Float xOrigin;
-    //T_Float yOrigin;
-    //DigitalElevationMap_state state;
+        //xorigin,yorigin: coordinates of the top left pixel in world
+		const gdalwrap::point_xy_t& custom_origin = meta.point_pix2custom(0, 0);
+		demMsgOutput.xOrigin = custom_origin[0];
+		demMsgOutput.yOrigin = custom_origin[1];
 
         return true;
     }
@@ -180,7 +181,20 @@ namespace atlaas{
     BitStream pcRasterizer::encode_message(/*demMsgOutput*/)
     {
         BitStream msg;
-        return msg;
+        int errorCode;
+        byte perBuffer[DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING];
+
+        BitStream_Init(&msg,perBuffer,DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING);
+
+        if (!DigitalElevationMap_Encode(&demMsgOutput,&msg,&errorCode,TRUE))
+        {
+            std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
+            exit(-1);
+        }
+        else
+        {
+            return msg;
+        }
     }
 }
 
