@@ -12,7 +12,7 @@ namespace atlaas
         int errorCode;
         BitStream_AttachBuffer(&b,msg.buf,BitStream_GetLength(&msg));
 
-        if (!DigitalElevationMap_Decode(&demInput,&b,&errorCode))
+        if (!DigitalElevationMap_Decode(&demMsgInput,&b,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
@@ -46,21 +46,21 @@ namespace atlaas
         tile_load(2, 2);
     }
 
-    bool mapFuser::update_rovermap(/*demInput,roverMap*/)
+    bool mapFuser::update_rovermap(/*demMsgInput,roverMap*/)
     {
         if (!isInit)
         {
-            init(demInput.nbCols,demInput.nbLines);
+            init(demMsgInput.nbCols,demMsgInput.nbLines);
         }
         /* The following MIGHT be added inside a separate helperfunction file*/
 
         /* Position of the current center tile */
-        newTile[0] = demInput.currentTile.arr[0];
-        newTile[1] = demInput.currentTile.arr[1];
+        newTile[0] = demMsgInput.currentTile.arr[0];
+        newTile[1] = demMsgInput.currentTile.arr[1];
 
         /* This line is dangerous : No checking over format, we just go all-in on the fact the the sender organized the data structure well before sending */
 
-        memcpy(&roverMap[0],&demInput.zValue.arr[0],width*height*N_RASTER*sizeof(float));
+        memcpy(&roverMap[0],&demMsgInput.zValue.arr[0],width*height*N_RASTER*sizeof(float));
     }
 
     void mapFuser::tile_load(int sx, int sy)
@@ -123,7 +123,7 @@ namespace atlaas
         if (any_gt_zero(tile.bands[N_POINTS])) // dont save empty tiles
         { 
             // update map transform used for merging the pointcloud
-            tile.set_transform(demInput.xOrigin, demInput.yOrigin,demInput.scale,scale);
+            tile.set_transform(demMsgInput.xOrigin, demMsgInput.yOrigin,demMsgInput.scale,scale);
             tile.save(tilepath(current[0] + sx, current[1] + sy) );
         }
     }
@@ -380,6 +380,40 @@ namespace atlaas
                 + dst[VARIANCE] * (dst[N_POINTS] - 1)
                 ) / (new_n_pts - 1);
         dst[N_POINTS] = new_n_pts;
+    }
+
+    bool mapFuser::update_outputMsg()
+    {
+        demMsgOutput.currentTile = demMsgInput.currentTile;
+        demMsgOutput.nbLines = demMsgInput.nbLines;
+        demMsgOutput.nbCols = demMsgInput.nbCols;
+        demMsgOutput.scale = demMsgInput.scale;
+        demMsgOutput.xOrigin = demMsgInput.xOrigin;
+        demMsgOutput.yOrigin = demMsgInput.yOrigin;
+        demMsgOutput.zOrigin = demMsgInput.zOrigin;
+
+        memcpy(&demMsgOutput.zValue.arr[0],&fusedMap[0],width*height*N_RASTER*sizeof(float));
+        return true;
+
+    }
+    
+    BitStream mapFuser::encode_message(/*demMsgOutput*/)
+    {
+        BitStream msg;
+        int errorCode;
+        byte perBuffer[DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING];
+
+        BitStream_Init(&msg,perBuffer,DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING);
+
+        if (!DigitalElevationMap_Encode(&demMsgOutput,&msg,&errorCode,TRUE))
+        {
+            std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
+            exit(-1);
+        }
+        else
+        {
+            return msg;
+        }
     }
 }
 #endif

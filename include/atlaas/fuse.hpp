@@ -11,8 +11,8 @@ namespace atlaas{
 
     class mapFuser{
         private:
-            DigitalElevationMap demInput;
-            DigitalElevationMap demOutput;
+            DigitalElevationMap demMsgInput;
+            DigitalElevationMap demMsgOutput;
 
             cells_info_t    fusedMap;
             cells_info_t    roverMap;
@@ -44,7 +44,7 @@ namespace atlaas{
 
             bool decode_message(BitStream msg);
             void init(int mapWidth, int mapHeight);
-            bool update_rovermap(/*demInput,roverMap*/);
+            bool update_rovermap(/*demMsgInput,roverMap*/);
 
             void tile_load(int sx, int sy /*, fusedMap, current */);
             void tile_save(int sx, int sy /*, fusedMap, current */) const;
@@ -61,6 +61,10 @@ namespace atlaas{
                 oss << atlaas_path << "/atlaas." << x << "x" << y << ".tif";
                 return oss.str();
             }
+
+            bool update_outputMsg(/*fusedMap,demMsgOutput*/);
+            BitStream encode_message(/*demMsgOutput*/);
+
 
 
     };
