@@ -5,6 +5,16 @@
 
 namespace atlaas{
 
+    pcRasterizer::pcRasterizer()
+    {
+        perBuffer = (byte*) malloc(DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+    }
+
+    pcRasterizer::~pcRasterizer()
+    {
+        free(perBuffer);
+    }
+
     bool pcRasterizer::decode_message(BitStream msg)
     {
         BitStream b; /* Will serve to decode incoming bitstream msg */
@@ -182,7 +192,6 @@ namespace atlaas{
     {
         BitStream msg;
         int errorCode;
-        byte perBuffer[DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING];
 
         BitStream_Init(&msg,perBuffer,DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING);
 

@@ -11,36 +11,40 @@ namespace atlaas{
 
     class mapFuser{
         private:
-            DigitalElevationMap demMsgInput;
-            DigitalElevationMap demMsgOutput;
+            DigitalElevationMap     demMsgInput;
+            DigitalElevationMap     demMsgOutput;
+            byte*                   perBuffer;
 
-            cells_info_t    fusedMap;
-            cells_info_t    roverMap;
-            map_id_t        current;
-            map_id_t        newTile;
+            cells_info_t            fusedMap;
+            cells_info_t            roverMap;
+            map_id_t                current;
+            map_id_t                newTile;
 
-            mutable gdalwrap::gdal   tile;
-            std::string     atlaas_path; //Where to store fused maps
+            mutable gdalwrap::gdal  tile;
+            std::string             atlaas_path; //Where to store fused maps
 
-            int             sw;
-            int             sh;
-            size_t          width;
-            size_t          height;
-            uint64_t        time_base;
+            int                     sw;
+            int                     sh;
+            size_t                  width;
+            size_t                  height;
+            uint64_t                time_base;
 
-            float           xOrigin;
-            float           yOrigin;
-            float           zOrigin;
-            float           zScale;
-            float           scale;
+            float                   xOrigin;
+            float                   yOrigin;
+            float                   zOrigin;
+            float                   zScale;
+            float                   scale;
 
-            bool            isInit = false;
-            float        variance_threshold;
-            cells_info_t gndinter; // ground info for vertical/flat unknown state
-            bool use_swap;
+            bool                    isInit = false;
+            float                   variance_threshold;
+            cells_info_t            gndinter; // ground info for vertical/flat unknown state
+            bool                    use_swap;
 
 
         public:
+
+            mapFuser();
+            ~mapFuser();
 
             bool decode_message(BitStream msg);
             void init(int mapWidth, int mapHeight);

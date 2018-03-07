@@ -5,6 +5,15 @@
 
 namespace atlaas
 {
+    mapFuser::mapFuser()
+    {
+        perBuffer = (byte*) malloc(sizeof(byte)*DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING);
+    }
+    
+    mapFuser::~mapFuser()
+    {
+        free(perBuffer);
+    }
 
     bool mapFuser::decode_message(BitStream msg)
     {
@@ -33,6 +42,7 @@ namespace atlaas
 
         fusedMap.resize(width * height);
         gndinter.resize( width * height );
+
         use_swap = true;
 
         tile_load(0, 0);
@@ -401,7 +411,6 @@ namespace atlaas
     {
         BitStream msg;
         int errorCode;
-        byte perBuffer[DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING];
 
         BitStream_Init(&msg,perBuffer,DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING);
 

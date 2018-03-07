@@ -6,6 +6,17 @@
 
 namespace atlaas{
 
+    cloudTransform::cloudTransform()
+    {
+        perBuffer = (byte*) malloc (PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING * sizeof(byte));
+    }
+
+    cloudTransform::~cloudTransform()
+    {
+        free(perBuffer);
+    }
+
+
     bool cloudTransform::decode_message(BitStream msg)
     {
         BitStream b; /* Will serve to decode incoming bitstream msg */
@@ -87,7 +98,6 @@ namespace atlaas{
     BitStream cloudTransform::encode_message(/*pcMsgOutput*/)
     {
         int errorCode;
-        byte perBuffer[PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING];
         BitStream b;
 
         BitStream_Init(&b,perBuffer,PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING);
