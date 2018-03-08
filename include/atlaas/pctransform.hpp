@@ -22,7 +22,8 @@ class cloudTransform
         Eigen::Quaterniond      q; // Store incoming quaternion into msg
         Eigen::Matrix3d         rotation; // Store rotation matrix computed from quaternion
         Eigen::Matrix4d         homoTrans; // Store homogenous transformation
-        byte*                   perBuffer;
+        byte*                   perBuffer; // Will be allocated once to the right message size
+        Time                    lastMsgTimeStamp; //Will contain the last messageTimeStamp
 
         /* Test variabes */
 

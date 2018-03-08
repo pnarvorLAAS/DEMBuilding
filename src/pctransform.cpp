@@ -9,6 +9,8 @@ namespace atlaas{
     cloudTransform::cloudTransform()
     {
         perBuffer = (byte*) malloc (PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING * sizeof(byte));
+        lastMsgTimeStamp.microseconds = 0;
+        lastMsgTimeStamp.usecPerSec = 0;
     }
 
     cloudTransform::~cloudTransform()
@@ -28,7 +30,8 @@ namespace atlaas{
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
         }
-        return true;
+        bool isTheSame = (lastMsgTimeStamp.microseconds == pcMsgInput.header.timeStamp.microseconds && lastMsgTimeStamp.usecPerSec == pcMsgInput.header.timeStamp.usecPerSec);
+        return !isTheSame;
     }
 
     bool cloudTransform::update_transform(/*pointCloudMsg,tfSensor2World*/)
