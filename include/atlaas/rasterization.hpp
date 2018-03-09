@@ -16,8 +16,8 @@ namespace atlaas{
             /* Inputs and outputs of the DFN */
             points                  pointCloud;
             matrix                  tfSensor2World;
-            PointCloudPoseStamped   pcMsgInput;
-            DigitalElevationMap     demMsgOutput;
+            PointCloudPoseStamped*  pcMsgInput;
+            DigitalElevationMap*    demMsgOutput;
             byte*                   perBuffer;
 
             /* Internal variables */
@@ -46,6 +46,7 @@ namespace atlaas{
         public:
             pcRasterizer();
             ~pcRasterizer();
+            void clean_up();
 
             bool decode_message(BitStream msg);
             bool update_transform(/*pointCloudMsg,tfSensor2World*/);
