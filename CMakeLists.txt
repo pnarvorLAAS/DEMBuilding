@@ -10,7 +10,6 @@ option(BUILD_DOC    "Build documentation" OFF)
 option(BUILD_WPCL   "Build with the PointCloud library" OFF)
 
 # C++11 for GCC 4.6
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
 # C++11 GDAL wrapper
