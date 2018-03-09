@@ -14,13 +14,12 @@ class cloudTransform
         /* Inputs and outputs of the DFN */
         points                  pointCloud; 
         matrix                  tfSensor2World;
-        PointCloudPoseStamped   pcMsgInput; // Message to decode
-        PointCloudPoseStamped   pcMsgOutput; // Encoded message to publish
+        PointCloudPoseStamped*  pcMsgInput; // Message to decode
+        PointCloudPoseStamped*  pcMsgOutput; // Encoded message to publish
 
         /* Internal variables */
         
         Eigen::Quaterniond      q; // Store incoming quaternion into msg
-        Eigen::Matrix3d         rotation; // Store rotation matrix computed from quaternion
         Eigen::Matrix4d         homoTrans; // Store homogenous transformation
         byte*                   perBuffer; // Will be allocated once to the right message size
         Time                    lastMsgTimeStamp; //Will contain the last messageTimeStamp
@@ -34,6 +33,8 @@ class cloudTransform
     public:
         cloudTransform();
         ~cloudTransform();
+
+        void clean_up();
 
         bool decode_message(BitStream msg);
         bool update_transform(/*pcMsgInput,tfSensor2World*/);

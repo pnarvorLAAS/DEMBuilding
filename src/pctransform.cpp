@@ -8,15 +8,29 @@ namespace atlaas{
 
     cloudTransform::cloudTransform()
     {
-        perBuffer = (byte*) malloc (PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING * sizeof(byte));
+        std::cout << "cloudTransform created" << std::endl;
+        perBuffer = (byte*) malloc(PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        pcMsgInput = new PointCloudPoseStamped;
+        pcMsgOutput = new PointCloudPoseStamped;
+
+        memset(perBuffer,0,PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING);
+        printf("Pointer : %p\n", perBuffer);
         lastMsgTimeStamp.microseconds = 0;
         lastMsgTimeStamp.usecPerSec = 0;
     }
 
     cloudTransform::~cloudTransform()
     {
-        free(perBuffer);
+        clean_up();
     }
+
+    void cloudTransform::clean_up()
+    {
+        free(perBuffer);
+        delete pcMsgInput;
+        delete pcMsgOutput;
+    }
+
 
 
     bool cloudTransform::decode_message(BitStream msg)
@@ -25,24 +39,24 @@ namespace atlaas{
         int errorCode;
         BitStream_AttachBuffer(&b,msg.buf,BitStream_GetLength(&msg));
 
-        if (!PointCloudPoseStamped_Decode(&pcMsgInput,&b,&errorCode))
+        if (!PointCloudPoseStamped_Decode(pcMsgInput,&b,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
         }
-        bool isTheSame = (lastMsgTimeStamp.microseconds == pcMsgInput.header.timeStamp.microseconds && lastMsgTimeStamp.usecPerSec == pcMsgInput.header.timeStamp.usecPerSec);
+        bool isTheSame = (lastMsgTimeStamp.microseconds == pcMsgInput->header.timeStamp.microseconds && lastMsgTimeStamp.usecPerSec == pcMsgInput->header.timeStamp.usecPerSec);
         return !isTheSame;
     }
 
     bool cloudTransform::update_transform(/*pointCloudMsg,tfSensor2World*/)
     {
         //Update quaternion from msg
-        q = Eigen::Quaterniond(pcMsgInput.pose.pose.orient.arr);
+        q = Eigen::Quaterniond(pcMsgInput->pose.pose.orient.arr);
         //Convert to rotation matrix
         homoTrans.block<3,3>(0,0) = q.normalized().toRotationMatrix();
-        homoTrans(0,3) = pcMsgInput.pose.pose.pos.arr[0];
-        homoTrans(1,3) = pcMsgInput.pose.pose.pos.arr[1];
-        homoTrans(2,3) = pcMsgInput.pose.pose.pos.arr[2];
+        homoTrans(0,3) = pcMsgInput->pose.pose.pos.arr[0];
+        homoTrans(1,3) = pcMsgInput->pose.pose.pos.arr[1];
+        homoTrans(2,3) = pcMsgInput->pose.pose.pos.arr[2];
 
         for (int i=0; i<4;i++)
         {
@@ -56,14 +70,15 @@ namespace atlaas{
 
     bool cloudTransform::update_pointCloud(/*pointCloudMsg,pointCloud*/)
     {
-        pointCloud.resize(pcMsgInput.pointCloudData.nCount);
+        pointCloud.resize(pcMsgInput->pointCloudData.nCount);
         auto it = pointCloud.begin();
-        for (int i=0; i < pcMsgInput.pointCloudData.nCount; i++)
+        for (int i=0; i < pcMsgInput->pointCloudData.nCount; i++)
         {
-            (*it)[0] = pcMsgInput.pointCloudData.arr[i].arr[0]; 
-            (*it)[1] = pcMsgInput.pointCloudData.arr[i].arr[1]; 
-            (*it)[2] = pcMsgInput.pointCloudData.arr[i].arr[2]; 
-            (*it)[3] = pcMsgInput.pointCloudData.arr[i].arr[3]; 
+            (*it)[0] = pcMsgInput->pointCloudData.arr[i].arr[0]; 
+            (*it)[1] = pcMsgInput->pointCloudData.arr[i].arr[1]; 
+            (*it)[2] = pcMsgInput->pointCloudData.arr[i].arr[2]; 
+            (*it)[3] = pcMsgInput->pointCloudData.arr[i].arr[3]; 
+            it++;
         }
         return true;
     }
@@ -85,17 +100,29 @@ namespace atlaas{
 
     bool cloudTransform::update_outputMsg(/*pcMsgOutput,pointCloud,tfSensor2World*/)
     {
-        pcMsgOutput.pose = pcMsgInput.pose;
-        pcMsgOutput.header = pcMsgInput.header;
+        pcMsgOutput->pose = pcMsgInput->pose;
+        pcMsgOutput->header = pcMsgInput->header;
         auto it =pointCloud.begin();
-        for (int i=0; i< pcMsgInput.pointCloudData.nCount; i++)
+        for (int i=0; i< pcMsgInput->pointCloudData.nCount; i++)
         {
-            pcMsgOutput.pointCloudData.arr[i].arr[0] = (*it)[0];
-            pcMsgOutput.pointCloudData.arr[i].arr[1] = (*it)[1];
-            pcMsgOutput.pointCloudData.arr[i].arr[2] = (*it)[2];
-            pcMsgOutput.pointCloudData.arr[i].arr[3] = (*it)[3];
+            pcMsgOutput->pointCloudData.arr[i].arr[0] = (*it)[0];
+            pcMsgOutput->pointCloudData.arr[i].arr[1] = (*it)[1];
+            pcMsgOutput->pointCloudData.arr[i].arr[2] = (*it)[2];
+            pcMsgOutput->pointCloudData.arr[i].nCount = 3;
+            it++;
         }
-        pcMsgOutput.pointCloudData.nCount = pcMsgInput.pointCloudData.nCount;
+        pcMsgOutput->pointCloudData.nCount = pcMsgInput->pointCloudData.nCount;
+
+        /* DEBUG */
+
+        //std::cout << "pcMsgOutput: " << std::endl;
+        //std::cout << "nCount position: " << pcMsgInput->pose.pose.pos.nCount << std::endl;
+        //std::cout << "nCount orientation: " << pcMsgInput->pose.pose.orient.nCount << std::endl;
+        //std::cout << "nCount header string: " << pcMsgInput->header.frameId.nCount << std::endl;
+        //std::cout << "header frameId: " << pcMsgInput->header.frameId.arr << std::endl;
+        //std::cout << "nCount pointCloud: " << pcMsgInput->pointCloudData.nCount << std::endl;
+
+        /* DEBUG */
     }
         
     BitStream cloudTransform::encode_message(/*pcMsgOutput*/)
@@ -104,11 +131,14 @@ namespace atlaas{
         BitStream b;
 
         BitStream_Init(&b,perBuffer,PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING);
+        printf( "BitStream buffer : %p\n", b.buf);
 
-        if (!PointCloudPoseStamped_Encode(&pcMsgOutput,&b,&errorCode,TRUE))
+        if (!PointCloudPoseStamped_Encode(pcMsgOutput,&b,&errorCode,TRUE))
         {
             std::cerr << "[Encoding] failed, error code: " << errorCode << std::endl;
+            clean_up();
             exit(-1);
+            
         }
         else
         {
