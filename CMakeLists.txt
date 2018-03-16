@@ -23,6 +23,7 @@ include_directories(${GDALWRAP_INCLUDE_DIRS})
 include_directories(${GSL_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIRS})
 include_directories(../../Types/C/)
+include_directories(../../Conversions/include)
 
 # Load the 'install_pkg_config_file' macro
 include(InstallPkgConfigFile)
