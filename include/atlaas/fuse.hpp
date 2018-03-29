@@ -11,8 +11,8 @@ namespace atlaas{
 
     class mapFuser{
         private:
-            DigitalElevationMap     demMsgInput;
-            DigitalElevationMap     demMsgOutput;
+            DigitalElevationMap*    demMsgInput;
+            DigitalElevationRaster* demRasterOutput;
             byte*                   perBuffer;
 
             cells_info_t            fusedMap;
@@ -45,6 +45,7 @@ namespace atlaas{
 
             mapFuser();
             ~mapFuser();
+            void clean_up();
 
             bool decode_message(BitStream msg);
             void init(int mapWidth, int mapHeight);
