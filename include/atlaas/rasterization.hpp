@@ -18,7 +18,9 @@ namespace atlaas{
             matrix                  tfSensor2World;
             PointCloudPoseStamped*  pcMsgInput;
             DigitalElevationMap*    demMsgOutput;
+            DigitalElevationRaster* demRasterMsgOutput;
             byte*                   perBuffer;
+            byte*                   perBufferRaster;
 
             /* Internal variables */
 
@@ -59,7 +61,9 @@ namespace atlaas{
             bool slide(/*sensor_xy, meta*/);
             void set_time_base(uint64_t base);
             bool update_outputMsg(/*demMsgOutput*/);
+            bool update_rasterMsg(/*demRasterMsgOutput*/);
             BitStream encode_message(/*demMsgOutput, dyninter*/);
+            BitStream encode_raster(/*demRasterMsgOutput*/);
 
 
     };

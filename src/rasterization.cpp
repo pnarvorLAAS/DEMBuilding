@@ -3,13 +3,19 @@
 
 #include <atlaas/rasterization.hpp>
 
+
+#define EXPORT_LOCALMAP 1
+#define EXPORT_LOCALRASTER 1
+
 namespace atlaas{
 
     pcRasterizer::pcRasterizer()
     {
         perBuffer = (byte*) malloc(DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        perBufferRaster = (byte*)malloc(DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         pcMsgInput = new PointCloudPoseStamped;
         demMsgOutput = new DigitalElevationMap; 
+        demRasterMsgOutput = new DigitalElevationRaster;
     }
 
     pcRasterizer::~pcRasterizer()
@@ -19,9 +25,12 @@ namespace atlaas{
 
     void pcRasterizer::clean_up()
     {
+        std::cout << "Cleaning up the rasterizer" << std::endl;
         free(perBuffer);
+        free(perBufferRaster);
         delete pcMsgInput;
         delete demMsgOutput;
+        delete demRasterMsgOutput;
     }
 
     bool pcRasterizer::decode_message(BitStream msg)
@@ -33,8 +42,11 @@ namespace atlaas{
         if (!PointCloudPoseStamped_Decode(pcMsgInput,&b,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
-            clean_up();
-            exit(-1);
+            return false;
+        }
+        else
+        {
+            std::cerr << "[Decoding] SUCCEEDED, let's go!" << std::endl;
         }
         return true;
     }
@@ -48,14 +60,22 @@ namespace atlaas{
         homoTrans(0,3) = pcMsgInput->pose.pose.pos.arr[0];
         homoTrans(1,3) = pcMsgInput->pose.pose.pos.arr[1];
         homoTrans(2,3) = pcMsgInput->pose.pose.pos.arr[2];
+        homoTrans(3,3) = 1.0;
 
+        /* DEBUG */
+
+        std::cout << "Transform:[  " << std::endl;
         for (int i=0; i<4;i++)
         {
             for (int j=0; j<4;j++)
             {
                 tfSensor2World[i*4 + j] = homoTrans(i,j);
+                std::cout << tfSensor2World[i*4 + j] << ", " ;
+
             }
+            std::cout << std::endl;
         }
+        std::cout << "]" << std::endl;
         return true;
     }
     
@@ -110,13 +130,17 @@ namespace atlaas{
 
     bool pcRasterizer::rasterize(/*pointCloud*/)
     {
+        cell_info_t zeros{};
+        std::fill(dyninter.begin(), dyninter.end(),zeros);
         size_t index;
         float z_mean, n_pts, new_z;
         // merge point-cloud in internal structure
         for (const auto& point : pointCloud) {
             index = meta.index_custom(point[0], point[1]);
             if (index >= dyninter.size() )
+            {
                 continue; // point is outside the map
+            }
 
             auto& info = dyninter[ index ];
             new_z = point[2];
@@ -201,6 +225,37 @@ namespace atlaas{
 		demMsgOutput->yOrigin = custom_origin[1];
 
         return true;
+    }
+
+    bool pcRasterizer::update_rasterMsg(/*demRasterMsgOutput,dyninter*/)
+    {
+        demRasterMsgOutput->header = pcMsgInput->header;
+        demRasterMsgOutput->nbLines = height;
+        demRasterMsgOutput->nbCols = width;
+        demRasterMsgOutput->zValue.nCount = height*width;
+
+        for (int i = 0; i < width*height; i++)
+        {   
+            demRasterMsgOutput->zValue.arr[i]  = dyninter[i][Z_MEAN];
+        }
+    }
+
+    BitStream pcRasterizer::encode_raster(/*demRasterMsgOutput*/)
+    {
+        BitStream msg;
+        int errorCode;
+        BitStream_Init(&msg,perBufferRaster,DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
+
+        if (!DigitalElevationRaster_Encode(demRasterMsgOutput,&msg,&errorCode,TRUE))
+        {
+            std::cout << "[Encoding Raster] failed. Error code: " << errorCode << std::endl;
+            clean_up();
+            exit(-1);
+        }
+        else
+        {
+            return msg;
+        }
     }
 
     BitStream pcRasterizer::encode_message(/*demMsgOutput*/)
