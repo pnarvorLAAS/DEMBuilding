@@ -1,6 +1,8 @@
 #undef NDEBUG
 #include <iostream>
 #include <atlaas/pctransform.hpp>
+#include <atlaas/rasterization.hpp>
+#include <atlaas/fuse.hpp>
 #include <PointCloudPoseStamped.h>
 #include <conversions/asn1scc_conversions.h>
 #include <sys/time.h>
@@ -39,12 +41,14 @@ int main(int argc, char* argv[])
     /* Transform point cloud */
     
     atlaas::cloudTransform test;
+    atlaas::pcRasterizer rast;
     test.decode_message(b);
     test.update_transform();
     test.update_pointCloud();
     test.transform_pointCloud();
     test.update_outputMsg();
     b = test.encode_message();
+    rast.decode_message(b);
 
     PointCloudPoseStamped *pc2 = new PointCloudPoseStamped();
 
@@ -69,6 +73,7 @@ int main(int argc, char* argv[])
             break;
         }
     }
+    
     
     
 
