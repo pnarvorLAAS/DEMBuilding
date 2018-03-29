@@ -14,7 +14,6 @@ namespace atlaas{
         pcMsgOutput = new PointCloudPoseStamped;
 
         memset(perBuffer,0,PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING);
-        printf("Pointer : %p\n", perBuffer);
         lastMsgTimeStamp.microseconds = 0;
         lastMsgTimeStamp.usecPerSec = 0;
     }
@@ -26,6 +25,7 @@ namespace atlaas{
 
     void cloudTransform::clean_up()
     {
+        std::cout << "Cleaning up the cloud tranformer!" << std::endl;
         free(perBuffer);
         delete pcMsgInput;
         delete pcMsgOutput;
@@ -58,13 +58,17 @@ namespace atlaas{
         homoTrans(1,3) = pcMsgInput->pose.pose.pos.arr[1];
         homoTrans(2,3) = pcMsgInput->pose.pose.pos.arr[2];
 
+        std::cout << "Transform:[  " << std::endl;
         for (int i=0; i<4;i++)
         {
             for (int j=0; j<4;j++)
             {
                 tfSensor2World[i*4 + j] = homoTrans(i,j);
+                std::cout << tfSensor2World[i*4 + j] << ", " ;
             }
+            std::cout << std::endl;
         }
+        std::cout << "]" << std::endl;
         return true;
     }
 
@@ -131,8 +135,6 @@ namespace atlaas{
         BitStream b;
 
         BitStream_Init(&b,perBuffer,PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING);
-        printf( "BitStream buffer : %p\n", b.buf);
-
         if (!PointCloudPoseStamped_Encode(pcMsgOutput,&b,&errorCode,TRUE))
         {
             std::cerr << "[Encoding] failed, error code: " << errorCode << std::endl;
