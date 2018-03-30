@@ -4,7 +4,7 @@
 #include <atlaas/rasterization.hpp>
 #include <atlaas/fuse.hpp>
 #include <PointCloudPoseStamped.h>
-#include <conversions/asn1scc_conversions.h>
+#include <conversions/asn1_conversions.hpp>
 #include <sys/time.h>
 
 using namespace std;

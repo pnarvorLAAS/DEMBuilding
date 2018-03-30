@@ -2,7 +2,7 @@ include_directories(.)
 
 macro(add_atlaas_test name)
     add_executable(${name} ${name}.cpp)
-    target_link_libraries(${name} atlaas)
+    target_link_libraries(${name} atlaas cdff_types asn1_conversions)
     add_test(${name} ${name})
 endmacro()
 

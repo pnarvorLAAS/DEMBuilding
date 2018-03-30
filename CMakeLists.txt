@@ -5,9 +5,9 @@ set(PACKAGE_NAME ${PROJECT_NAME})
 set(PACKAGE_VERSION ${${PROJECT_NAME}_VERSION})
 
 option(BUILD_TESTS  "Build tests" ON)
-option(BUILD_TOOLS  "Build tools" OFF)
-option(BUILD_DOC    "Build documentation" OFF)
-option(BUILD_WPCL   "Build with the PointCloud library" OFF)
+#option(BUILD_TOOLS  "Build tools" OFF)
+#option(BUILD_DOC    "Build documentation" OFF)
+#option(BUILD_WPCL   "Build with the PointCloud library" OFF)
 
 # C++11 for GCC 4.6
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
@@ -22,8 +22,8 @@ include_directories(include)
 include_directories(${GDALWRAP_INCLUDE_DIRS})
 include_directories(${GSL_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIRS})
-include_directories(../../Types/C/)
-include_directories(../../Conversions/include)
+#include_directories(../../Types/C/)
+#include_directories(../../Conversions/include)
 
 # Load the 'install_pkg_config_file' macro
 include(InstallPkgConfigFile)
@@ -38,42 +38,45 @@ if("${isSystemDir}" STREQUAL "-1")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
 
-if (BUILD_WPCL)
-  find_package(PCL 1.3 REQUIRED COMPONENTS common io filters)
-  include_directories(${PCL_INCLUDE_DIRS})
-  link_directories(${PCL_LIBRARY_DIRS})
-  add_definitions(${PCL_DEFINITIONS})
-  add_definitions(-D_USE_PCL)
-endif(BUILD_WPCL)
 
 # Library and binary
 add_subdirectory(src)
-
-if (BUILD_TOOLS)
-  add_subdirectory(tools)
-endif(BUILD_TOOLS)
 
 if (BUILD_TESTS)
   include( CTest )
   add_subdirectory(test)
 endif(BUILD_TESTS)
 
-if (BUILD_DOC)
-  find_package(Doxygen)
-  if(DOXYGEN_FOUND)
-    configure_file( doxyfile.dox.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile.dox @ONLY)
-    add_custom_target( doc ALL
-      ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile.dox
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      COMMENT "Generating documentation (Doxygen)" VERBATIM )
-  endif(DOXYGEN_FOUND)
-endif(BUILD_DOC)
+#if (BUILD_WPCL)
+#  find_package(PCL 1.3 REQUIRED COMPONENTS common io filters)
+#  include_directories(${PCL_INCLUDE_DIRS})
+#  link_directories(${PCL_LIBRARY_DIRS})
+#  add_definitions(${PCL_DEFINITIONS})
+#  add_definitions(-D_USE_PCL)
+#endif(BUILD_WPCL)
 
-# Install headers
-file(GLOB atlaas_HDRS "include/atlaas/*.hpp")
-install(FILES ${atlaas_HDRS} DESTINATION include/atlaas)
-file(GLOB types_HDRS "../../Types/C/*.h")
-install(FILES ${types_HDRS} DESTINATION include)
+
+#if (BUILD_TOOLS)
+#  add_subdirectory(tools)
+#endif(BUILD_TOOLS)
+
+
+#if (BUILD_DOC)
+#  find_package(Doxygen)
+#  if(DOXYGEN_FOUND)
+#    configure_file( doxyfile.dox.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile.dox @ONLY)
+#    add_custom_target( doc ALL
+#      ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile.dox
+#      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+#      COMMENT "Generating documentation (Doxygen)" VERBATIM )
+#  endif(DOXYGEN_FOUND)
+#endif(BUILD_DOC)
+
+## Install headers
+#file(GLOB atlaas_HDRS "include/atlaas/*.hpp")
+#install(FILES ${atlaas_HDRS} DESTINATION include/atlaas)
+#file(GLOB types_HDRS "../../Types/C/*.h")
+#install(FILES ${types_HDRS} DESTINATION include)
 
 #########################################################################
 ### Uninstall ###
