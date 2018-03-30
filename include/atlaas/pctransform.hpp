@@ -48,6 +48,7 @@ class cloudTransform
         bool set_transform(matrix tfToSet)
         {
             tfSensor2World=tfToSet;
+            return true;
         };
 
         matrix get_transform()
@@ -59,6 +60,7 @@ class cloudTransform
         {
             pointCloud=pcToSet;
             cloudSize = size;
+            return true;
         };
 
         points get_pointCloud()

@@ -116,6 +116,7 @@ namespace atlaas{
             it++;
         }
         pcMsgOutput->pointCloudData.nCount = pcMsgInput->pointCloudData.nCount;
+        return true;
 
         /* DEBUG */
 
