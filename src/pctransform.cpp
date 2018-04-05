@@ -37,9 +37,10 @@ namespace atlaas{
     {
         BitStream b; /* Will serve to decode incoming bitstream msg */
         int errorCode;
-        BitStream_AttachBuffer(&b,msg.buf,BitStream_GetLength(&msg));
+        //BitStream_Init(&b,perBuffer,PointCloudPoseStamped_REQUIRED_BYTES_FOR_ENCODING);
+        //BitStream_AttachBuffer(&b,msg.buf,BitStream_GetLength(&msg));
 
-        if (!PointCloudPoseStamped_Decode(pcMsgInput,&b,&errorCode))
+        if (!PointCloudPoseStamped_Decode(pcMsgInput,&msg,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
