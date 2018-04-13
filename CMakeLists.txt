@@ -43,13 +43,21 @@ set(PRIVATE_LIBS -lasn1-infuse-types)
 set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
 
 
-# Library and binary
-add_subdirectory(src)
+file(GLOB atlaas_SRCS "src/*.cpp")
+add_library( atlaas SHARED ${atlaas_SRCS} )
+target_link_libraries( atlaas ${GDALWRAP_LIBRARIES} )
+target_link_libraries( atlaas ${GSL_LIBRARIES} )
+target_link_libraries( atlaas ${PCL_LIBRARIES})
+target_link_libraries( atlaas cdff_types)
 
-if (BUILD_TESTS)
-  include( CTest )
-  add_subdirectory(test)
-endif(BUILD_TESTS)
+set(DEPENDENCIES "gdal gdalwrap gsl eigen3 cdff_types")
+configure_file(${CMAKE_SOURCE_DIR}/template.pc.in ${CMAKE_BINARY_DIR}/pkgconfig/atlaas.pc @ONLY) 
+
+
+#if (BUILD_TESTS)
+#  include( CTest )
+#  add_subdirectory(test)
+#endif(BUILD_TESTS)
 
 #if (BUILD_WPCL)
 #  find_package(PCL 1.3 REQUIRED COMPONENTS common io filters)
