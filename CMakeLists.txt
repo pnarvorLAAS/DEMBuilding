@@ -39,6 +39,10 @@ if("${isSystemDir}" STREQUAL "-1")
 endif("${isSystemDir}" STREQUAL "-1")
 
 
+set(PRIVATE_LIBS -lasn1-infuse-types)
+set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
+
+
 # Library and binary
 add_subdirectory(src)
 
