@@ -52,6 +52,7 @@ target_link_libraries( atlaas cdff_types)
 
 set(DEPENDENCIES "gdal gdalwrap gsl eigen3 cdff_types")
 set(HEADERS_DIR "include")
+set(LIBRARY_NAME "atlaas")
 configure_file(${CMAKE_SOURCE_DIR}/template.pc.in ${CMAKE_BINARY_DIR}/pkgconfig/atlaas.pc @ONLY) 
 
 
