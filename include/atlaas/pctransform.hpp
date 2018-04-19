@@ -1,7 +1,6 @@
 #ifndef _PCTRANSFORM_HPP_
 #define _PCTRANSFORM_HPP_
 
-#include <PointCloudPoseStamped.h>
 #include <atlaas/common.hpp>
 #include <Eigen/Geometry>
 
@@ -9,20 +8,16 @@ namespace atlaas {
 
 class cloudTransform
 {
-    private:
+    protected:
 
         /* Inputs and outputs of the DFN */
         points                  pointCloud; 
         matrix                  tfSensor2World;
-        PointCloudPoseStamped*  pcMsgInput; // Message to decode
-        PointCloudPoseStamped*  pcMsgOutput; // Encoded message to publish
 
         /* Internal variables */
         
         Eigen::Quaterniond      q; // Store incoming quaternion into msg
         Eigen::Matrix4d         homoTrans; // Store homogenous transformation
-        byte*                   perBuffer; // Will be allocated once to the right message size
-        Time                    lastMsgTimeStamp; //Will contain the last messageTimeStamp
 
         /* Test variabes */
 
@@ -34,14 +29,9 @@ class cloudTransform
         cloudTransform();
         ~cloudTransform();
 
-        void clean_up();
+        virtual void clean_up();
 
-        bool decode_message(BitStream msg);
-        bool update_transform(/*pcMsgInput,tfSensor2World*/);
-        bool update_pointCloud(/*pcMsgInput,pointCloud*/);
         bool transform_pointCloud(/*pointCloud*/);
-        bool update_outputMsg(/*pcMsgOutput,pointCloud, tfSensor2World*/);
-        BitStream encode_message(/*pcMsgOutput*/);
 
         /* Setters and getters for DEBUG */
 
