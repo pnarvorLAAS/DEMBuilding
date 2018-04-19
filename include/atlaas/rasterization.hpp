@@ -1,8 +1,6 @@
 #ifndef __RASTERIZATION_HPP__
 #define __RASTERIZATION_HPP__
 
-#include <PointCloudPoseStamped.h>
-#include <DEM.h>
 #include <gdalwrap/gdal.hpp>
 #include <atlaas/common.hpp>
 #include <Eigen/Geometry>
@@ -11,16 +9,11 @@ namespace atlaas{
 
     class pcRasterizer
     {
-        private:
+        protected:
 
             /* Inputs and outputs of the DFN */
             points                  pointCloud;
             matrix                  tfSensor2World;
-            PointCloudPoseStamped*  pcMsgInput;
-            DigitalElevationMap*    demMsgOutput;
-            DigitalElevationRaster* demRasterMsgOutput;
-            byte*                   perBuffer;
-            byte*                   perBufferRaster;
 
             /* Internal variables */
 
@@ -48,24 +41,16 @@ namespace atlaas{
         public:
             pcRasterizer();
             ~pcRasterizer();
-            void clean_up();
+            virtual void clean_up();
 
-            bool decode_message(BitStream msg);
-            bool update_transform(/*pointCloudMsg,tfSensor2World*/);
-            bool update_pointCloud(/*pointCloudMsg,pointCloud*/);
             void init(double size_x,double size_y, double scale,
                     double custom_x, double custom_y, double custom_z,
                     int utm_zone, bool utm_north);
+
             bool rasterize(/*pointCloud*/);
             void do_slide();
             bool slide(/*sensor_xy, meta*/);
             void set_time_base(uint64_t base);
-            bool update_outputMsg(/*demMsgOutput*/);
-            bool update_rasterMsg(/*demRasterMsgOutput*/);
-            BitStream encode_message(/*demMsgOutput, dyninter*/);
-            BitStream encode_raster(/*demRasterMsgOutput*/);
-
-
     };
 }
 
