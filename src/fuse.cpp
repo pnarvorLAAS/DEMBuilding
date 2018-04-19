@@ -7,9 +7,6 @@ namespace atlaas
 {
     mapFuser::mapFuser()
     {
-        demMsgInput = new DigitalElevationMap;
-        demRasterOutput = new DigitalElevationRaster;
-        perBuffer = (byte*) malloc(sizeof(byte)*DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
     }
     
     mapFuser::~mapFuser()
@@ -19,25 +16,9 @@ namespace atlaas
 
     void mapFuser::clean_up()
     {
-        free(perBuffer);
-        delete demMsgInput;
-        delete demRasterOutput;
     }
 
 
-    bool mapFuser::decode_message(BitStream msg)
-    {
-        BitStream b; /* Will serve to decode incoming bitstream msg */
-        int errorCode;
-        BitStream_AttachBuffer(&b,msg.buf,BitStream_GetLength(&msg));
-
-        if (!DigitalElevationMap_Decode(demMsgInput,&b,&errorCode))
-        {
-            std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
-            return false;
-        }
-        return true;
-    }
 
     void mapFuser::init(int mapWidth, int mapHeight)
     {
@@ -67,31 +48,6 @@ namespace atlaas
         tile_load(2, 2);
     }
 
-    bool mapFuser::update_rovermap(/*demMsgInput,roverMap*/)
-    {
-        if (!isInit)
-        {
-            init(demMsgInput->nbCols,demMsgInput->nbLines);
-        }
-        /* The following MIGHT be added inside a separate helperfunction file*/
-
-        /* Position of the current center tile */
-        newTile[0] = demMsgInput->currentTile.arr[0];
-        newTile[1] = demMsgInput->currentTile.arr[1];
-
-        /* This line is dangerous : No checking over format, we just go all-in on the fact the the sender organized the data structure well before sending */
-
-        memcpy(&roverMap[0],&demMsgInput->zValue.arr[0],width*height*N_RASTER*sizeof(float));
-        for (int i  = 0; i < width*height; i++)
-        {
-            if (roverMap[i][Z_MEAN] != 0)
-            {
-                std::cout << "Found non zero: " << roverMap[i][Z_MEAN] <<  std::endl;
-                std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
-                return 1;
-            }
-        }
-    }
 
     void mapFuser::tile_load(int sx, int sy)
     {
@@ -104,7 +60,7 @@ namespace atlaas
 
         tile.load(filepath);
         assert( tile.bands.size() == MAP_NAMES.size() );
-        assert( tile.bands[0].size() == sw * sh );
+        assert( tile.bands[0].size() == (unsigned int) (sw * sh) );
         long diff = time_base - std::stol(tile.get_meta("TIME", "0"));
         size_t idx = 0, eoi = 0;
         for (auto it  = fusedMap.begin() + sw * sx + sh * width * sy,
@@ -153,7 +109,7 @@ namespace atlaas
         if (any_gt_zero(tile.bands[N_POINTS])) // dont save empty tiles
         { 
             // update map transform used for merging the pointcloud
-            tile.set_transform(demMsgInput->xOrigin, demMsgInput->yOrigin,demMsgInput->scale,scale);
+            tile.set_transform(xOrigin, yOrigin,scale,scale);
             tile.save(tilepath(current[0] + sx, current[1] + sy) );
         }
     }
@@ -411,37 +367,6 @@ namespace atlaas
                 + dst[VARIANCE] * (dst[N_POINTS] - 1)
                 ) / (new_n_pts - 1);
         dst[N_POINTS] = new_n_pts;
-    }
-
-    bool mapFuser::update_outputMsg()
-    {
-        demRasterOutput->nbLines = demMsgInput->nbLines;
-        demRasterOutput->nbCols = demMsgInput->nbCols;
-        
-        for (int i = 0; i < width*height; i++)
-        {   
-            demRasterOutput->zValue.arr[i]  = fusedMap[i][Z_MEAN];
-        }
-        demRasterOutput->zValue.nCount = width*height;
-        return true;
-    }
-    
-    BitStream mapFuser::encode_message(/*demRasterOutput*/)
-    {
-        BitStream msg;
-        int errorCode;
-
-        BitStream_Init(&msg,perBuffer,DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
-
-        if (!DigitalElevationRaster_Encode(demRasterOutput,&msg,&errorCode,TRUE))
-        {
-            std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
-            exit(-1);
-        }
-        else
-        {
-            return msg;
-        }
     }
 }
 #endif

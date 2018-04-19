@@ -5,15 +5,11 @@
 #include <gdalwrap/gdal.hpp>
 #include <cassert>
 #include <cstring>
-#include <DEM.h>
 
 namespace atlaas{
 
     class mapFuser{
-        private:
-            DigitalElevationMap*    demMsgInput;
-            DigitalElevationRaster* demRasterOutput;
-            byte*                   perBuffer;
+        protected:
 
             cells_info_t            fusedMap;
             cells_info_t            roverMap;
@@ -47,10 +43,8 @@ namespace atlaas{
             ~mapFuser();
             void clean_up();
 
-            bool decode_message(BitStream msg);
-            void init(int mapWidth, int mapHeight);
-            bool update_rovermap(/*demMsgInput,roverMap*/);
 
+            void init(int mapWidth, int mapHeight);
             void tile_load(int sx, int sy /*, fusedMap, current */);
             void tile_save(int sx, int sy /*, fusedMap, current */) const;
             bool load_data(/*fusedMap*/);
@@ -66,11 +60,6 @@ namespace atlaas{
                 oss << atlaas_path << "/atlaas." << x << "x" << y << ".tif";
                 return oss.str();
             }
-
-            bool update_outputMsg(/*fusedMap,demMsgOutput*/);
-            BitStream encode_message(/*demMsgOutput*/);
-
-
 
     };
 }
