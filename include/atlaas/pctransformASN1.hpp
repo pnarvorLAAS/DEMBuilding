@@ -2,8 +2,11 @@
 #define __PCTRANSFORMASN1_HPP__
 
 #include "pctransform.hpp"
-#include <PointCloudPoseStamped.h>
+#include <PointCloud_InFuse.h>
+#include <conversions/asn1_conversions.hpp>
 #include <Time.h>
+
+#define DEFAULT_FIXED_FRAME "localTerrainFrame"
 
 namespace atlaas{
 
@@ -11,8 +14,8 @@ class cloudTransformASN1: public cloudTransform
 {
     private:
             
-        PointCloudPoseStamped*  pcMsgInput; // Message to decode
-        PointCloudPoseStamped*  pcMsgOutput; // Encoded message to publish
+        PointCloud_InFuse*      pcMsgInput; // Message to decode
+        PointCloud_InFuse*      pcMsgOutput; // Encoded message to publish
         byte*                   perBuffer; // Will be allocated once to the right message size
         Time                    lastMsgTimeStamp;
             

@@ -16,8 +16,13 @@ class cloudTransform
 
         /* Internal variables */
         
-        Eigen::Quaterniond      q; // Store incoming quaternion into msg
-        Eigen::Matrix4d         homoTrans; // Store homogenous transformation
+        Eigen::Quaterniond      rotationSensor2Robot;   // Store rotation from sensor frame to rover body frame
+        Eigen::Matrix4d         transformSensor2Robot;  // Store transform from sensor frame to rover body frame
+
+        Eigen::Quaterniond      rotationRobot2World;    // Store rotation from rover body frame to fixed frame (Local terrain frame)
+        Eigen::Matrix4d         transformRobot2World;   // Store transform from rover body frame to fixed frame (Local terrain frame)
+
+        Eigen::Matrix4d         transformSensor2World;  // Store transform from sensor frame to fixed frame (Local Terrain frame)
 
         /* Test variabes */
 
