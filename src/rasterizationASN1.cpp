@@ -6,7 +6,7 @@ namespace atlaas{
         {
             perBuffer = (byte*) malloc(DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
             perBufferRaster = (byte*)malloc(DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
-            pcMsgInput = new PointCloudPoseStamped;
+            pcMsgInput = new PointCloud_InFuse;
             demMsgOutput = new DigitalElevationMap; 
             demRasterMsgOutput = new DigitalElevationRaster;
 
@@ -30,7 +30,7 @@ namespace atlaas{
         bool pcRasterizerASN1::decode_message(BitStream msg)
         {
             int errorCode;
-            if (!PointCloudPoseStamped_Decode(pcMsgInput,&msg,&errorCode))
+            if (!PointCloud_InFuse_Decode(pcMsgInput,&msg,&errorCode))
             {
                 std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
                 return false;
@@ -40,39 +40,57 @@ namespace atlaas{
 
         bool pcRasterizerASN1::update_transform(/*pcMsgInput,tfSensor2World*/)
         {
-            //Update quaternion from msg
-            q = Eigen::Quaterniond(pcMsgInput->pose.pose.orient.arr);
-            //Convert to rotation matrix
-            homoTrans.block<3,3>(0,0) = q.normalized().toRotationMatrix();
-            homoTrans(0,3) = pcMsgInput->pose.pose.pos.arr[0];
-            homoTrans(1,3) = pcMsgInput->pose.pose.pos.arr[1];
-            homoTrans(2,3) = pcMsgInput->pose.pose.pos.arr[2];
-            homoTrans(3,3) = 1.0;
+            //Update Rotation from sensor to robot from msg
+            rotationSensor2Robot = Eigen::Quaterniond(pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr);
 
+            //Convert to rotation matrix
+            transformSensor2Robot.block<3,3>(0,0) = rotationSensor2Robot.normalized().toRotationMatrix();
+
+            //Convert to homogeneous transformation
+            transformSensor2Robot(0,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[0];
+            transformSensor2Robot(1,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[1];
+            transformSensor2Robot(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
+
+            //Update Rotation from robot to world from msg
+            rotationRobot2World = Eigen::Quaterniond(pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr);
+            
+            //Convert to rotation matrix
+            transformRobot2World.block<3,3>(0,0) = rotationRobot2World.normalized().toRotationMatrix();
+
+            //Convert to homogeneous transformation
+            transformRobot2World(0,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[0];
+            transformRobot2World(1,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[1];
+            transformRobot2World(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
+
+            //Compute total transform
+
+            transformSensor2World = transformRobot2World * transformSensor2Robot;
 
             //std::cout << "Transform:[  " << std::endl;
             for (int i=0; i<4;i++)
             {
                 for (int j=0; j<4;j++)
                 {
-                    tfSensor2World[i*4 + j] = homoTrans(i,j);
+                    tfSensor2World[i*4 + j] = transformSensor2World(i,j);
                     //std::cout << tfSensor2World[i*4 + j] << ", " ;
                 }
                 //std::cout << std::endl;
             }
             //std::cout << "]" << std::endl;
+
             return true;
         }
     
         bool pcRasterizerASN1::update_pointCloud(/*pointCloudMsg,pointCloud*/)
         {
-            pointCloud.resize(pcMsgInput->pointCloudData.nCount);
+            pointCloud.resize(pcMsgInput->points.nCount);
             auto it = pointCloud.begin();
-            for (int i=0; i < pcMsgInput->pointCloudData.nCount; i++)
+            for (int i=0; i < pcMsgInput->points.nCount; i++)
             {
-                (*it)[0] = pcMsgInput->pointCloudData.arr[i].arr[0]; 
-                (*it)[1] = pcMsgInput->pointCloudData.arr[i].arr[1]; 
-                (*it)[2] = pcMsgInput->pointCloudData.arr[i].arr[2]; 
+                (*it)[0] = pcMsgInput->points.arr[i].arr[0]; 
+                (*it)[1] = pcMsgInput->points.arr[i].arr[1]; 
+                (*it)[2] = pcMsgInput->points.arr[i].arr[2]; 
+                (*it)[3] = pcMsgInput->points.arr[i].arr[3]; 
                 it++;
             }
             return true;
@@ -107,7 +125,7 @@ namespace atlaas{
 
         bool pcRasterizerASN1::update_rasterMsg(/*demRasterMsgOutput,dyninter*/)
         {
-            demRasterMsgOutput->header = pcMsgInput->header;
+            //demRasterMsgOutput->header = pcMsgInput->header;
             demRasterMsgOutput->nbLines = height;
             demRasterMsgOutput->nbCols = width;
             demRasterMsgOutput->zValue.nCount = height*width;

@@ -2,7 +2,7 @@
 #define __RASTERIZATIONASN1_HPP__
 
 #include <atlaas/rasterization.hpp>
-#include <PointCloudPoseStamped.h>
+#include <PointCloud_InFuse.h>
 #include <DEM.h>
 
 namespace atlaas{
@@ -10,7 +10,7 @@ namespace atlaas{
     class pcRasterizerASN1: public pcRasterizer
     {
         private:
-            PointCloudPoseStamped*  pcMsgInput;
+            PointCloud_InFuse*  pcMsgInput;
             DigitalElevationMap*    demMsgOutput;
             DigitalElevationRaster* demRasterMsgOutput;
             byte*                   perBuffer;
