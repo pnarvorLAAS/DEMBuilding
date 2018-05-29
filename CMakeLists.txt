@@ -92,6 +92,14 @@ configure_file(${CMAKE_SOURCE_DIR}/template.pc.in ${CMAKE_BINARY_DIR}/pkgconfig/
 #file(GLOB types_HDRS "../../Types/C/*.h")
 #install(FILES ${types_HDRS} DESTINATION include)
 
+## Install
+file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+ "include/atlaas/*.hpp"
+)
+set(HEADERS_INSTALL_DIR include/atlaas)
+set(LIB_INSTALL_DIR lib)
+include(${CMAKE_SOURCE_DIR}/CMakeModules/CDFF_at_LAAS-install.cmake)
+
 #########################################################################
 ### Uninstall ###
 #########################################################################
