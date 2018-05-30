@@ -49,6 +49,7 @@ target_link_libraries( atlaas ${GDALWRAP_LIBRARIES} )
 target_link_libraries( atlaas ${GSL_LIBRARIES} )
 target_link_libraries( atlaas ${PCL_LIBRARIES})
 target_link_libraries( atlaas cdff_types asn1_conversions)
+add_dependencies(atlaas cdff_types asn1_conversions)
 
 set(DEPENDENCIES "gdal gdalwrap gsl eigen3 cdff_types asn1_conversions")
 set(HEADERS_DIR "include")
