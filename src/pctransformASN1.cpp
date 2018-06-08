@@ -12,6 +12,7 @@ namespace atlaas{
         lastMsgTimeStamp.usecPerSec = 0;
 
         perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
 
         perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
@@ -48,6 +49,7 @@ namespace atlaas{
     {
         std::cout << "Cleaning up the cloud ASN1 point cloud tranformer!" << std::endl;
         free(perBuffer);
+        free(perBufferPose);
         delete pcMsgInput;
         delete pcMsgOutput;
         delete transformToWorld;
