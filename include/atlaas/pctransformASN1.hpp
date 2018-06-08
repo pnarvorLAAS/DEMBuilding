@@ -35,10 +35,10 @@ class cloudTransformASN1: public cloudTransform
         bool update_pointCloud(/*pcMsgInput,pointCloud*/);
         BitStream encode_message(/*pcMsgOutput*/);
 
-        T_Srting getRobotFrame()
+        std::string getRobotFrame()
         {
             std::string frame;
-            1SCC(pcMsgOutput->pose_robotFrame_sensorFrame.parentFrameId,frame);
+            fromASN1SCC(pcMsgOutput->pose_robotFrame_sensorFrame.parentFrameId,frame);
             return frame;
         }
 
