@@ -36,8 +36,17 @@ class cloudTransformASN1: public cloudTransform
         BitStream encode_message(/*pcMsgOutput*/);
         BitStream create_request(/*pcMsgInput*/);
 
+        T_Srting getRobotFrame()
+        {
+            std::string frame;
+            1SCC(pcMsgOutput->pose_robotFrame_sensorFrame.parentFrameId,frame);
+            return frame;
+        }
 
-
+        Time getPointCloudTime()
+        {
+            return pcMsgInput->timeStamp;
+        }
 };
 
 };
