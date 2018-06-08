@@ -6,12 +6,15 @@ namespace atlaas{
     {
         pcMsgInput = new PointCloud_InFuse;
         pcMsgOutput = new PointCloud_InFuse;
+        transformToWorld = new Pose_InFuse;
 
         lastMsgTimeStamp.microseconds = 0;
         lastMsgTimeStamp.usecPerSec = 0;
 
         perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+        memset(perBufferPose,0,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
     }
 
     cloudTransformASN1::~cloudTransformASN1()
@@ -23,8 +26,10 @@ namespace atlaas{
     {
         std::cout << "Cleaning up the cloud ASN1 point cloud tranformer!" << std::endl;
         free(perBuffer);
+        free(perBufferPose);
         delete pcMsgInput;
         delete pcMsgOutput;
+        delete transformToWorld;
     }
     
     bool cloudTransformASN1::decode_message(BitStream msg)
@@ -44,6 +49,18 @@ namespace atlaas{
 
         return !isTheSame;
     }
+
+    bool cloudTransformASN1::decode_pose(BitStream msg)
+    {
+        int errorCode;
+        if (!Pose_InFuse_Decode(transformToWorld,&msg,&errorCode))
+        {
+            std::cerr << "[Decoding pose] failed, error code: " << errorCode << std::endl;
+            return false;
+        }
+        return true;
+    }
+
     
     bool cloudTransformASN1::update_transform(/*pointCloudMsg,tfSensor2World*/)
     {
@@ -59,15 +76,15 @@ namespace atlaas{
         transformSensor2Robot(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
 
         //Update Rotation from robot to world from msg
-        rotationRobot2World = Eigen::Quaterniond(pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr);
+        rotationRobot2World = Eigen::Quaterniond(transformToWorld->transform.orientation.arr);
         
         //Convert to rotation matrix
         transformRobot2World.block<3,3>(0,0) = rotationRobot2World.normalized().toRotationMatrix();
 
         //Convert to homogeneous transformation
-        transformRobot2World(0,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[0];
-        transformRobot2World(1,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[1];
-        transformRobot2World(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
+        transformRobot2World(0,3) = transformToWorld->transform.translation.arr[0];
+        transformRobot2World(1,3) = transformToWorld->transform.translation.arr[1];
+        transformRobot2World(2,3) = transformToWorld->transform.translation.arr[2];
 
         //Compute total transform
 
