@@ -12,9 +12,23 @@ namespace atlaas{
         lastMsgTimeStamp.usecPerSec = 0;
 
         perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
-        perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
-        memset(perBufferPose,0,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+
+        fixedFrame = DEFAULT_FIXED_FRAME;
+    }
+
+    cloudTransformASN1::cloudTransformASN1(std::string worldFrame): fixedFrame(worldFrame)
+    {
+        pcMsgInput = new PointCloud_InFuse;
+        pcMsgOutput = new PointCloud_InFuse;
+        transformToWorld = new Pose_InFuse;
+
+        lastMsgTimeStamp.microseconds = 0;
+        lastMsgTimeStamp.usecPerSec = 0;
+
+        perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+
     }
 
     cloudTransformASN1::~cloudTransformASN1()
@@ -26,7 +40,6 @@ namespace atlaas{
     {
         std::cout << "Cleaning up the cloud ASN1 point cloud tranformer!" << std::endl;
         free(perBuffer);
-        free(perBufferPose);
         delete pcMsgInput;
         delete pcMsgOutput;
         delete transformToWorld;
@@ -124,7 +137,7 @@ namespace atlaas{
     bool cloudTransformASN1::update_outputMsg(/*pcMsgOutput,pointCloud,tfSensor2World*/)
     {
         // Change frameId
-        std::string frameMsg = DEFAULT_FIXED_FRAME;
+        std::string frameMsg = fixedFrame;
         toASN1SCC(frameMsg,pcMsgOutput->frameId);
 
         /* Copy all other informations */

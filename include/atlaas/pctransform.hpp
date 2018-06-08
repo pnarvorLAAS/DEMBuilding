@@ -14,6 +14,11 @@ class cloudTransform
         points                  pointCloud; 
         matrix                  tfSensor2World;
 
+        /* Frames names */
+
+        std::string             robotFrame;
+        std::string             fixedFrame;
+
         /* Internal variables */
         
         Eigen::Quaterniond      rotationSensor2Robot;   // Store rotation from sensor frame to rover body frame
@@ -27,6 +32,7 @@ class cloudTransform
         /* Test variabes */
 
         int                     cloudSize;
+
 
 
 
@@ -66,6 +72,11 @@ class cloudTransform
         int get_cloudSize()
         {
             return cloudSize;
+        }
+
+        std::string getFixedFrame()
+        {
+            return fixedFrame;
         }
 };
 
