@@ -14,10 +14,13 @@ namespace atlaas{
         perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
 
+        perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        memset(perBufferPose,0,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+
         fixedFrame = DEFAULT_FIXED_FRAME;
     }
 
-    cloudTransformASN1::cloudTransformASN1(std::string worldFrame): fixedFrame(worldFrame)
+    cloudTransformASN1::cloudTransformASN1(std::string worldFrame)
     {
         pcMsgInput = new PointCloud_InFuse;
         pcMsgOutput = new PointCloud_InFuse;
@@ -28,6 +31,11 @@ namespace atlaas{
 
         perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+
+        perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+        memset(perBufferPose,0,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+
+        fixedFrame = worldFrame;
 
     }
 
@@ -201,6 +209,37 @@ namespace atlaas{
             return b;
         }
 
+    }
+
+    BitStream cloudTransformASN1::create_request(/*pcMsgInput*/)
+    {
+        int errorCode;
+        BitStream b;
+
+        /* Build the request */ 
+
+        Pose_InFuse request;
+        toASN1SCC(fixedFrame,request.parentFrameId);
+        request.childFrameId = pcMsgInput->pose_robotFrame_sensorFrame.parentFrameId;
+        request.msgVersion = pose_InFuse_Version;
+        request.parentTime = pcMsgInput->timeStamp;
+        request.childTime = pcMsgInput->timeStamp;
+        request.transform = pcMsgInput->pose_robotFrame_sensorFrame.transform;
+
+        /* Encoding */
+
+        BitStream_Init(&b,perBufferPose,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
+
+        if (!Pose_InFuse_Encode(&request,&b,&errorCode,TRUE))
+        {
+            std::cerr << "[Encoding of request] failed, error code: " << errorCode << std::endl;
+            clean_up();
+            exit(-1);
+        }
+        else
+        {
+            return b;
+        }
     }
 
 

@@ -34,18 +34,10 @@ class cloudTransformASN1: public cloudTransform
         bool update_transform(/*pcMsgInput,tfSensor2World*/);
         bool update_pointCloud(/*pcMsgInput,pointCloud*/);
         BitStream encode_message(/*pcMsgOutput*/);
+        BitStream create_request(/*pcMsgInput*/);
 
-        std::string getRobotFrame()
-        {
-            std::string frame;
-            fromASN1SCC(pcMsgOutput->pose_robotFrame_sensorFrame.parentFrameId,frame);
-            return frame;
-        }
 
-        Time getPointCloudTime()
-        {
-            return pcMsgInput->timeStamp;
-        }
+
 };
 
 };
