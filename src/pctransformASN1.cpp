@@ -4,23 +4,17 @@ namespace atlaas{
     
     cloudTransformASN1::cloudTransformASN1()
     {
-        pcMsgInput = new PointCloud_InFuse;
-        pcMsgOutput = new PointCloud_InFuse;
-        transformToWorld = new Pose_InFuse;
-
-        lastMsgTimeStamp.microseconds = 0;
-        lastMsgTimeStamp.usecPerSec = 0;
-
-        perBuffer = (byte*) malloc(PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
-        memset(perBuffer,0,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
-
-        perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
-        memset(perBufferPose,0,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
-
+        init();
         fixedFrame = DEFAULT_FIXED_FRAME;
     }
 
     cloudTransformASN1::cloudTransformASN1(std::string worldFrame)
+    {
+        init();
+        fixedFrame = worldFrame;
+    }
+
+    void cloudTransformASN1::init()
     {
         pcMsgInput = new PointCloud_InFuse;
         pcMsgOutput = new PointCloud_InFuse;
@@ -34,10 +28,8 @@ namespace atlaas{
 
         perBufferPose = (byte*) malloc(Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
         memset(perBufferPose,0,Pose_InFuse_REQUIRED_BYTES_FOR_ENCODING);
-
-        fixedFrame = worldFrame;
-
     }
+
 
     cloudTransformASN1::~cloudTransformASN1()
     {

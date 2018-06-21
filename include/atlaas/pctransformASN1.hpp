@@ -25,6 +25,8 @@ class cloudTransformASN1: public cloudTransform
     public:
         cloudTransformASN1();
         cloudTransformASN1(std::string worldFrame);
+        void init();
+
         ~cloudTransformASN1();
         virtual void clean_up();
 
