@@ -7,7 +7,7 @@
 #include <conversions/asn1_conversions.hpp>
 #include <Time.h>
 
-#define DEFAULT_FIXED_FRAME "localTerrainFrame"
+#define DEFAULT_FIXED_FRAME "LocalTerrainFrame"
 
 namespace atlaas{
 
@@ -30,8 +30,9 @@ class cloudTransformASN1: public cloudTransform
         ~cloudTransformASN1();
         virtual void clean_up();
 
-        bool decode_message(BitStream msg);
-        bool decode_pose(BitStream msg);
+        bool decode_message(BitStream &msg);
+        void print_inputMsg();
+        bool decode_pose(BitStream &msg);
         bool update_outputMsg(/*pcMsgOutput,pointCloud, tfSensor2World*/);
         bool update_transform(/*pcMsgInput,tfSensor2World*/);
         bool update_pointCloud(/*pcMsgInput,pointCloud*/);
