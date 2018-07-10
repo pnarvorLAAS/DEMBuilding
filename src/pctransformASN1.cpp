@@ -171,8 +171,34 @@ namespace atlaas{
         std::cout << "======== World -> Robot[CHILD]: " << pcMsgInput->pose_fixedFrame_robotFrame.childTime.microseconds << ", " << pcMsgInput->pose_fixedFrame_robotFrame.childTime.usecPerSec << std::endl;
         std::cout << "======== Robot -> sensor [PARENT]: " << pcMsgInput->pose_robotFrame_sensorFrame.parentTime.microseconds << ", " << pcMsgInput->pose_robotFrame_sensorFrame.parentTime.usecPerSec << std::endl;
         std::cout << "======== Robot -> sensor [CHILD]: " << pcMsgInput->pose_robotFrame_sensorFrame.childTime.microseconds << ", " << pcMsgInput->pose_robotFrame_sensorFrame.childTime.usecPerSec << std::endl;
+    }
+    
+    void cloudTransformASN1::print_outputMsg()
+    {
+        std::cout << "pcMsgOutput Metadata: " << std::endl;
+        std::cout << "==== General Metadata: " << std::endl;
+        std::cout << "======== Header frameId: " << pcMsgOutput->frameId.arr << std::endl;
+        std::cout << "======== nCount frameId: " << pcMsgOutput->frameId.nCount << std::endl;
+        std::cout << "======== timeStamp: [" << pcMsgOutput->timeStamp.microseconds << ", " << pcMsgOutput->timeStamp.usecPerSec << "]" <<  std::endl;
+
+        std::cout << "==== On the pointCloud: " << std::endl;
+        std::cout << "======== nCount pointCloud: " << pcMsgOutput->points.nCount << std::endl;
+        std::cout << "======== nCount colors: " << pcMsgOutput->colors.nCount << std::endl;
+        std::cout << "======== nCount intensity: " << pcMsgOutput->intensity.nCount << std::endl;
 
 
+        std::cout << "==== On the poses [Frame ids]: " << std::endl;
+        std::cout << "======== World->robot [PARENT]: " <<  pcMsgOutput->pose_fixedFrame_robotFrame.parentFrameId.arr << ",nCount: " << pcMsgOutput->pose_fixedFrame_robotFrame.parentFrameId.nCount <<std::endl;
+        std::cout << "======== World->robot[CHILD]: " <<  pcMsgOutput->pose_fixedFrame_robotFrame.childFrameId.arr << ",nCount: " << pcMsgOutput->pose_fixedFrame_robotFrame.childFrameId.nCount << std::endl;
+        std::cout << "======== Robot->sensor[PARENT]: " << pcMsgOutput->pose_robotFrame_sensorFrame.parentFrameId.arr << ", nCount: " << pcMsgOutput->pose_robotFrame_sensorFrame.parentFrameId.nCount << std::endl;
+        std::cout << "======== Robot->sensor[CHILD]: " << pcMsgOutput->pose_robotFrame_sensorFrame.childFrameId.arr << ", nCount: " << pcMsgOutput->pose_robotFrame_sensorFrame.childFrameId.nCount << std::endl;
+
+
+        std::cout << "==== On the poses[Times]: " << std::endl;
+        std::cout << "======== World -> Robot[PARENT]: " << pcMsgOutput->pose_fixedFrame_robotFrame.parentTime.microseconds << ", " << pcMsgOutput->pose_fixedFrame_robotFrame.parentTime.usecPerSec << std::endl;
+        std::cout << "======== World -> Robot[CHILD]: " << pcMsgOutput->pose_fixedFrame_robotFrame.childTime.microseconds << ", " << pcMsgOutput->pose_fixedFrame_robotFrame.childTime.usecPerSec << std::endl;
+        std::cout << "======== Robot -> sensor [PARENT]: " << pcMsgOutput->pose_robotFrame_sensorFrame.parentTime.microseconds << ", " << pcMsgOutput->pose_robotFrame_sensorFrame.parentTime.usecPerSec << std::endl;
+        std::cout << "======== Robot -> sensor [CHILD]: " << pcMsgOutput->pose_robotFrame_sensorFrame.childTime.microseconds << ", " << pcMsgOutput->pose_robotFrame_sensorFrame.childTime.usecPerSec << std::endl;
     }
     
     bool cloudTransformASN1::update_outputMsg(/*pcMsgOutput,pointCloud,tfSensor2World*/)

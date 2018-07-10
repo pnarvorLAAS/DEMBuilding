@@ -32,6 +32,7 @@ class cloudTransformASN1: public cloudTransform
 
         bool decode_message(BitStream &msg);
         void print_inputMsg();
+        void print_outputMsg();
         bool decode_pose(BitStream &msg);
         bool update_outputMsg(/*pcMsgOutput,pointCloud, tfSensor2World*/);
         bool update_transform(/*pcMsgInput,tfSensor2World*/);
