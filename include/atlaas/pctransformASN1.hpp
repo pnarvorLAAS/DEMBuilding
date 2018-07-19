@@ -1,6 +1,7 @@
 #ifndef __PCTRANSFORMASN1_HPP__
 #define __PCTRANSFORMASN1_HPP__
 
+#include <memory>
 #include "pctransform.hpp"
 #include <PointCloud_InFuse.h>
 #include <Pose_InFuse.h>
@@ -15,9 +16,9 @@ class cloudTransformASN1: public cloudTransform
 {
     private:
             
-        PointCloud_InFuse*      pcMsgInput; // Message to decode
-        PointCloud_InFuse*      pcMsgOutput; // Encoded message to publish
-        Pose_InFuse*            transformToWorld; // Transform from robot body frame to world
+        std::shared_ptr<PointCloud_InFuse>      pcMsgInput; // Message to decode
+        std::shared_ptr<PointCloud_InFuse>      pcMsgOutput; // Encoded message to publish
+        std::unique_ptr<Pose_InFuse>            transformToWorld; // Transform from robot body frame to world
         byte*                   perBuffer; // Will be allocated once to the right message size (point cloud)
         byte*                   perBufferPose; // Will be allocated once to the right message size (pose)
         Time                    lastMsgTimeStamp;
@@ -39,6 +40,9 @@ class cloudTransformASN1: public cloudTransform
         bool update_pointCloud(/*pcMsgInput,pointCloud*/);
         BitStream encode_message(/*pcMsgOutput*/);
         BitStream create_request(/*pcMsgInput*/);
+
+        //Getter to avoid copy, should be used with caution
+        const std::shared_ptr<PointCloud_InFuse> getOutput(){return pcMsgOutput;}
 
 };
 

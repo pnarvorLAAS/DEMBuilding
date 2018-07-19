@@ -16,9 +16,9 @@ namespace atlaas{
 
     void cloudTransformASN1::init()
     {
-        pcMsgInput = new PointCloud_InFuse;
-        pcMsgOutput = new PointCloud_InFuse;
-        transformToWorld = new Pose_InFuse;
+        pcMsgInput = std::make_shared<PointCloud_InFuse>();
+        pcMsgOutput = std::make_shared<PointCloud_InFuse>();
+        transformToWorld = std::unique_ptr<Pose_InFuse>(new Pose_InFuse);
 
         lastMsgTimeStamp.microseconds = 0;
         lastMsgTimeStamp.usecPerSec = 0;
@@ -40,16 +40,13 @@ namespace atlaas{
     {
         std::cout << "Cleaning up the cloud ASN1 point cloud tranformer!" << std::endl;
         free(perBuffer);
-        delete pcMsgInput;
-        delete pcMsgOutput;
-        delete transformToWorld;
     }
     
     bool cloudTransformASN1::decode_message(BitStream &msg)
     {
         int errorCode;
 
-        if (!PointCloud_InFuse_Decode(pcMsgInput,&msg,&errorCode))
+        if (!PointCloud_InFuse_Decode(pcMsgInput.get(),&msg,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
@@ -66,7 +63,7 @@ namespace atlaas{
     bool cloudTransformASN1::decode_pose(BitStream &msg)
     {
         int errorCode;
-        if (!Pose_InFuse_Decode(transformToWorld,&msg,&errorCode))
+        if (!Pose_InFuse_Decode(transformToWorld.get(),&msg,&errorCode))
         {
             std::cerr << "[Decoding pose] failed, error code: " << errorCode << std::endl;
             return false;
@@ -307,7 +304,7 @@ namespace atlaas{
         BitStream b;
 
         BitStream_Init(&b,perBuffer,PointCloud_InFuse_REQUIRED_BYTES_FOR_ENCODING);
-        if (!PointCloud_InFuse_Encode(pcMsgOutput,&b,&errorCode,TRUE))
+        if (!PointCloud_InFuse_Encode(pcMsgOutput.get(),&b,&errorCode,TRUE))
         {
             std::cerr << "[Encoding] failed, error code: " << errorCode << std::endl;
             clean_up();
