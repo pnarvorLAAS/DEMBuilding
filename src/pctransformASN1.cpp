@@ -89,7 +89,7 @@ namespace atlaas{
     bool cloudTransformASN1::update_transform(/*pointCloudMsg,tfSensor2World*/)
     {
         //Update Rotation from sensor to robot from msg
-        rotationSensor2Robot = Eigen::Quaterniond(pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr);
+        rotationSensor2Robot = Eigen::Quaterniond(pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[3],pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[0],pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[1],pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[2]);
 
         //Convert to rotation matrix
         transformSensor2Robot.block<3,3>(0,0) = rotationSensor2Robot.normalized().toRotationMatrix();
@@ -98,21 +98,31 @@ namespace atlaas{
         transformSensor2Robot(0,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[0];
         transformSensor2Robot(1,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[1];
         transformSensor2Robot(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
+        transformSensor2Robot(3,3) = 1;
 
         //Update Rotation from robot to world from msg
-        rotationRobot2World = Eigen::Quaterniond(transformToWorld->transform.orientation.arr);
+        rotationRobot2World = Eigen::Quaterniond(transformToWorld->transform.orientation.arr[3],transformToWorld->transform.orientation.arr[0],transformToWorld->transform.orientation.arr[1],transformToWorld->transform.orientation.arr[2]);
         
         //Convert to rotation matrix
         transformRobot2World.block<3,3>(0,0) = rotationRobot2World.normalized().toRotationMatrix();
+        for (int i = 0; i < 3; i++)
+        {
+            transformRobot2World(3,i) = 0;
+            transformSensor2Robot(3,i) = 0;
+        }
 
         //Convert to homogeneous transformation
         transformRobot2World(0,3) = transformToWorld->transform.translation.arr[0];
         transformRobot2World(1,3) = transformToWorld->transform.translation.arr[1];
         transformRobot2World(2,3) = transformToWorld->transform.translation.arr[2];
+        transformRobot2World(3,3) = 1;
+
+
+        std::cout << "Transform R2W translation: " << transformToWorld->transform.translation.arr[0] <<", " << transformToWorld->transform.translation.arr[1] << "," << transformToWorld->transform.translation.arr[2] << std::endl;
 
         //Compute total transform
 
-        transformSensor2World = transformRobot2World * transformSensor2Robot;
+        transformSensor2World =  transformRobot2World * transformSensor2Robot ;
 
         //std::cout << "Transform:[  " << std::endl;
         for (int i=0; i<4;i++)
@@ -120,12 +130,15 @@ namespace atlaas{
             for (int j=0; j<4;j++)
             {
                 tfSensor2World[i*4 + j] = transformSensor2World(i,j);
-                //std::cout << tfSensor2World[i*4 + j] << ", " ;
+//                std::cout << tfSensor2World[i*4 + j] << ", " ;
             }
-            //std::cout << std::endl;
+//            std::cout << std::endl;
         }
-        //std::cout << "]" << std::endl;
+//        std::cout << "]" << std::endl;
 
+        std::cout << std::endl << std::endl;
+
+        std::cout << "Transform S2W translation: " << transformSensor2World(0,3) <<", " << transformSensor2World(1,3) << "," << transformSensor2World(2,3) << std::endl;
 
         return true;
     }
