@@ -7,7 +7,7 @@ namespace atlaas{
             perBuffer = (byte*) malloc(DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
             perBufferRaster = (byte*)malloc(DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
             pcMsgInput = std::make_shared<PointCloud_InFuse>();
-            //demMsgOutput = std::make_shared<DigitalElevationMap>(); 
+            demMsgOutput = std::make_shared<DigitalElevationMap>(); 
             demRasterMsgOutput = std::make_shared<DigitalElevationRaster>();
 
         }

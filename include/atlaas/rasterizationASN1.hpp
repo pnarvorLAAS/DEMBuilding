@@ -31,6 +31,8 @@ namespace atlaas{
             BitStream encode_raster(/*demRasterMsgOutput*/);
 
             void setPcInput(const std::shared_ptr<PointCloud_InFuse> ptr){pcMsgInput = ptr;}
+            const std::shared_ptr<DigitalElevationMap> getLocalMap(){return demMsgOutput;}
+
             void print_inputMsg();
             void printPose(Pose_InFuse pose);
     };
