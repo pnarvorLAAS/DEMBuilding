@@ -41,8 +41,11 @@ class cloudTransformASN1: public cloudTransform
         BitStream encode_message(/*pcMsgOutput*/);
         BitStream create_request(/*pcMsgInput*/);
 
+        //Helper function to print a Pose_InFuse 
+        void printPose(Pose_InFuse pose); 
+
         //Getter to avoid copy, should be used with caution
-        const std::shared_ptr<PointCloud_InFuse> getOutput(){return pcMsgOutput;}
+        const std::shared_ptr<PointCloud_InFuse> getPcOutput(){return pcMsgOutput;}
 
 };
 
