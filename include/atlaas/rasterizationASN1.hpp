@@ -2,6 +2,7 @@
 #define __RASTERIZATIONASN1_HPP__
 
 #include <atlaas/rasterization.hpp>
+#include <memory>
 #include <PointCloud_InFuse.h>
 #include <DEM.h>
 
@@ -10,9 +11,10 @@ namespace atlaas{
     class pcRasterizerASN1: public pcRasterizer
     {
         private:
-            PointCloud_InFuse*  pcMsgInput;
-            DigitalElevationMap*    demMsgOutput;
-            DigitalElevationRaster* demRasterMsgOutput;
+            std::shared_ptr<PointCloud_InFuse>  pcMsgInput;
+            std::shared_ptr<DigitalElevationMap>    demMsgOutput;
+            std::shared_ptr<DigitalElevationRaster> demRasterMsgOutput;
+
             byte*                   perBuffer;
             byte*                   perBufferRaster;
 
@@ -27,6 +29,10 @@ namespace atlaas{
             bool update_rasterMsg(/*demRasterMsgOutput*/);
             BitStream encode_message(/*demMsgOutput, dyninter*/);
             BitStream encode_raster(/*demRasterMsgOutput*/);
+
+            void setPcInput(const std::shared_ptr<PointCloud_InFuse> ptr){pcMsgInput = ptr;}
+            void print_inputMsg();
+            void printPose(Pose_InFuse pose);
     };
 };
 

@@ -6,9 +6,9 @@ namespace atlaas{
         {
             perBuffer = (byte*) malloc(DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
             perBufferRaster = (byte*)malloc(DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
-            pcMsgInput = new PointCloud_InFuse;
-            demMsgOutput = new DigitalElevationMap; 
-            demRasterMsgOutput = new DigitalElevationRaster;
+            pcMsgInput = std::make_shared<PointCloud_InFuse>();
+            //demMsgOutput = std::make_shared<DigitalElevationMap>(); 
+            demRasterMsgOutput = std::make_shared<DigitalElevationRaster>();
 
         }
 
@@ -22,15 +22,12 @@ namespace atlaas{
             std::cout << "Cleaning up the ASN1 Rasterizer" << std::endl;
             free(perBuffer);
             free(perBufferRaster);
-            delete pcMsgInput;
-            delete demMsgOutput;
-            delete demRasterMsgOutput;
         }
 
         bool pcRasterizerASN1::decode_message(BitStream msg)
         {
             int errorCode;
-            if (!PointCloud_InFuse_Decode(pcMsgInput,&msg,&errorCode))
+            if (!PointCloud_InFuse_Decode(pcMsgInput.get(),&msg,&errorCode))
             {
                 std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
                 return false;
@@ -40,8 +37,17 @@ namespace atlaas{
 
         bool pcRasterizerASN1::update_transform(/*pcMsgInput,tfSensor2World*/)
         {
+
+
+            // DEBUG
+            //std::cout << "R2W RASTERIZER INPUT MSG" << std::endl;
+            //printPose(pcMsgInput->pose_fixedFrame_robotFrame);
+            //std::cout << "S2R RASTERIZER INPUT MSG" << std::endl;
+            //printPose(pcMsgInput->pose_robotFrame_sensorFrame);
+            // DEBUG
+
             //Update Rotation from sensor to robot from msg
-            rotationSensor2Robot = Eigen::Quaterniond(pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr);
+            rotationSensor2Robot = Eigen::Quaterniond(pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[3],pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[0],pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[1],pcMsgInput->pose_robotFrame_sensorFrame.transform.orientation.arr[2]);
 
             //Convert to rotation matrix
             transformSensor2Robot.block<3,3>(0,0) = rotationSensor2Robot.normalized().toRotationMatrix();
@@ -50,21 +56,47 @@ namespace atlaas{
             transformSensor2Robot(0,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[0];
             transformSensor2Robot(1,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[1];
             transformSensor2Robot(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
-
+            transformSensor2Robot(3,3) = 1;
+            
             //Update Rotation from robot to world from msg
-            rotationRobot2World = Eigen::Quaterniond(pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr);
+            rotationRobot2World = Eigen::Quaterniond(pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr[3],pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr[0],pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr[1],pcMsgInput->pose_fixedFrame_robotFrame.transform.orientation.arr[2]);
             
             //Convert to rotation matrix
             transformRobot2World.block<3,3>(0,0) = rotationRobot2World.normalized().toRotationMatrix();
 
             //Convert to homogeneous transformation
-            transformRobot2World(0,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[0];
-            transformRobot2World(1,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[1];
-            transformRobot2World(2,3) = pcMsgInput->pose_robotFrame_sensorFrame.transform.translation.arr[2];
+            transformRobot2World(0,3) = pcMsgInput->pose_fixedFrame_robotFrame.transform.translation.arr[0];
+            transformRobot2World(1,3) = pcMsgInput->pose_fixedFrame_robotFrame.transform.translation.arr[1];
+            transformRobot2World(2,3) = pcMsgInput->pose_fixedFrame_robotFrame.transform.translation.arr[2];
+            transformRobot2World(3,3) = 1;
+
+             for (int i = 0; i < 3; i++)
+             {
+                 transformRobot2World(3,i) = 0;
+                 transformSensor2Robot(3,i) = 0;
+             }
 
             //Compute total transform
 
             transformSensor2World = transformRobot2World * transformSensor2Robot;
+
+            // Print transform
+
+            //Eigen::Quaterniond ori(transformSensor2World.block<3,3>(0,0));
+
+            //std::cout << "TRANSFORM S2W FROM PREVIOUS DATA" << std::endl;
+    	    //std::cout << "== Position" << std::endl;
+    	    //std::cout << "==== [";
+    	    //std::cout << transformSensor2World(0,3) << ", " << transformSensor2World(1,3) << ", " << transformSensor2World(2,3);
+    	    //std::cout << "]" << std::endl;
+    	    //std::cout << "== Orientation " << std::endl;
+    	    //std::cout << "==== [";
+    	    //std::cout << "w = " << ori.w();
+    	    //std::cout << ", x = " << ori.x();
+    	    //std::cout << ", y = " << ori.y();
+    	    //std::cout << ", z = " << ori.z();
+    	    //std::cout << "]" << std::endl;
+        
 
             //std::cout << "Transform:[  " << std::endl;
             for (int i=0; i<4;i++)
@@ -90,7 +122,7 @@ namespace atlaas{
                 (*it)[0] = pcMsgInput->points.arr[i].arr[0]; 
                 (*it)[1] = pcMsgInput->points.arr[i].arr[1]; 
                 (*it)[2] = pcMsgInput->points.arr[i].arr[2]; 
-                (*it)[3] = pcMsgInput->points.arr[i].arr[3]; 
+                (*it)[3] = pcMsgInput->intensity.arr[i];
                 it++;
             }
             return true;
@@ -134,15 +166,21 @@ namespace atlaas{
             {   
                 demRasterMsgOutput->zValue.arr[i]  = dyninter[i][Z_MEAN];
             }
+
+            std::cout << "Dem Raster info" << std::endl;
+            std::cout << "== Height = " << demRasterMsgOutput->nbLines << std::endl;
+            std::cout << "== Width = " << demRasterMsgOutput->nbCols << std::endl;
+            std::cout << "== ZValue.nCount = " << demRasterMsgOutput->zValue.nCount <<std::endl;
         }
 
         BitStream pcRasterizerASN1::encode_raster(/*demRasterMsgOutput*/)
         {
+            std::cout << "Entering the encode function" << std::endl;
             BitStream msg;
             int errorCode;
             BitStream_Init(&msg,perBufferRaster,DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
 
-            if (!DigitalElevationRaster_Encode(demRasterMsgOutput,&msg,&errorCode,TRUE))
+            if (!DigitalElevationRaster_Encode(demRasterMsgOutput.get(),&msg,&errorCode,TRUE))
             {
                 std::cout << "[Encoding Raster] failed. Error code: " << errorCode << std::endl;
                 clean_up();
@@ -152,6 +190,7 @@ namespace atlaas{
             {
                 return msg;
             }
+            
         }
 
         BitStream pcRasterizerASN1::encode_message(/*demMsgOutput*/)
@@ -161,7 +200,7 @@ namespace atlaas{
 
             BitStream_Init(&msg,perBuffer,DigitalElevationMap_REQUIRED_BYTES_FOR_ENCODING);
 
-            if (!DigitalElevationMap_Encode(demMsgOutput,&msg,&errorCode,TRUE))
+            if (!DigitalElevationMap_Encode(demMsgOutput.get(),&msg,&errorCode,TRUE))
             {
                 std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
                 clean_up();
@@ -171,6 +210,51 @@ namespace atlaas{
             {
                 return msg;
             }
+
         }
+
+
+        void pcRasterizerASN1::print_inputMsg()
+        {
+            std::cout << "pcMsgInput Metadata: " << std::endl;
+            std::cout << "==== General Metadata: " << std::endl;
+            std::cout << "======== Header frameId: " << pcMsgInput->frameId.arr << std::endl;
+            std::cout << "======== nCount frameId: " << pcMsgInput->frameId.nCount << std::endl;
+            std::cout << "======== timeStamp: [" << pcMsgInput->timeStamp.microseconds << ", " << pcMsgInput->timeStamp.usecPerSec << "]" <<  std::endl;
+
+            std::cout << "==== On the pointCloud: " << std::endl;
+            std::cout << "======== nCount pointCloud: " << pcMsgInput->points.nCount << std::endl;
+            std::cout << "======== nCount colors: " << pcMsgInput->colors.nCount << std::endl;
+            std::cout << "======== nCount intensity: " << pcMsgInput->intensity.nCount << std::endl;
+
+
+            std::cout << "==== On the poses [Frame ids]: " << std::endl;
+            std::cout << "======== World->robot [PARENT]: " <<  pcMsgInput->pose_fixedFrame_robotFrame.parentFrameId.arr << ",nCount: " << pcMsgInput->pose_fixedFrame_robotFrame.parentFrameId.nCount <<std::endl;
+            std::cout << "======== World->robot[CHILD]: " <<  pcMsgInput->pose_fixedFrame_robotFrame.childFrameId.arr << ",nCount: " << pcMsgInput->pose_fixedFrame_robotFrame.childFrameId.nCount << std::endl;
+            std::cout << "======== Robot->sensor[PARENT]: " << pcMsgInput->pose_robotFrame_sensorFrame.parentFrameId.arr << ", nCount: " << pcMsgInput->pose_robotFrame_sensorFrame.parentFrameId.nCount << std::endl;
+            std::cout << "======== Robot->sensor[CHILD]: " << pcMsgInput->pose_robotFrame_sensorFrame.childFrameId.arr << ", nCount: " << pcMsgInput->pose_robotFrame_sensorFrame.childFrameId.nCount << std::endl;
+
+
+            std::cout << "==== On the poses[Times]: " << std::endl;
+            std::cout << "======== World -> Robot[PARENT]: " << pcMsgInput->pose_fixedFrame_robotFrame.parentTime.microseconds << ", " << pcMsgInput->pose_fixedFrame_robotFrame.parentTime.usecPerSec << std::endl;
+            std::cout << "======== World -> Robot[CHILD]: " << pcMsgInput->pose_fixedFrame_robotFrame.childTime.microseconds << ", " << pcMsgInput->pose_fixedFrame_robotFrame.childTime.usecPerSec << std::endl;
+            std::cout << "======== Robot -> sensor [PARENT]: " << pcMsgInput->pose_robotFrame_sensorFrame.parentTime.microseconds << ", " << pcMsgInput->pose_robotFrame_sensorFrame.parentTime.usecPerSec << std::endl;
+            std::cout << "======== Robot -> sensor [CHILD]: " << pcMsgInput->pose_robotFrame_sensorFrame.childTime.microseconds << ", " << pcMsgInput->pose_robotFrame_sensorFrame.childTime.usecPerSec << std::endl;
+        }
+
+    	void pcRasterizerASN1::printPose(Pose_InFuse pose)
+    	{
+    	    std::cout << "== Position" << std::endl;
+    	    std::cout << "==== [";
+    	    std::cout << pose.transform.translation.arr[0] << ", " << pose.transform.translation.arr[1] << ", " << pose.transform.translation.arr[2];
+    	    std::cout << "]" << std::endl;
+    	    std::cout << "== Orientation " << std::endl;
+    	    std::cout << "==== [";
+    	    std::cout << "w = " << pose.transform.orientation.arr[3];
+    	    std::cout << ", x = " << pose.transform.orientation.arr[0];
+    	    std::cout << ", y = " << pose.transform.orientation.arr[1];
+    	    std::cout << ", z = " << pose.transform.orientation.arr[2];
+    	    std::cout << "]" << std::endl;
+    	}
 
 };
