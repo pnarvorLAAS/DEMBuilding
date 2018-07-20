@@ -4,8 +4,8 @@ namespace atlaas
 {
     mapFuserASN1::mapFuserASN1()
     {
-        demMsgInput = new DigitalElevationMap;
-        demRasterOutput = new DigitalElevationRaster;
+        demMsgInput = std::make_shared<DigitalElevationMap>();
+        demRasterOutput = std::make_shared<DigitalElevationRaster>();
         perBuffer = (byte*) malloc(sizeof(byte)*DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
     }
 
@@ -17,14 +17,12 @@ namespace atlaas
     void mapFuserASN1::clean_up()
     {
         free(perBuffer);
-        delete demMsgInput;
-        delete demRasterOutput;
     }
     
     bool mapFuserASN1::decode_message(BitStream msg)
     {
         int errorCode;
-        if (!DigitalElevationMap_Decode(demMsgInput,&msg,&errorCode))
+        if (!DigitalElevationMap_Decode(demMsgInput.get(),&msg,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
@@ -89,7 +87,7 @@ namespace atlaas
 
         BitStream_Init(&msg,perBuffer,DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
 
-        if (!DigitalElevationRaster_Encode(demRasterOutput,&msg,&errorCode,TRUE))
+        if (!DigitalElevationRaster_Encode(demRasterOutput.get(),&msg,&errorCode,TRUE))
         {
             std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
             exit(-1);
