@@ -5,15 +5,16 @@
 #include <memory>
 #include <infuse_asn1_types/Pointcloud.h>
 #include <infuse_asn1_types/Map.h>
+#include <infuse_asn1_types/MultiLayeredMap.h>
 
-namespace atlaas{
+namespace dem_building{
 
     class pcRasterizerASN1: public pcRasterizer
     {
         private:
-            std::shared_ptr<PointCloud_InFuse>  pcMsgInput;
-            std::shared_ptr<DigitalElevationMap>    demMsgOutput;
-            std::shared_ptr<DigitalElevationRaster> demRasterMsgOutput;
+            std::shared_ptr<asn1SccPointcloud>  pcMsgInput;
+            std::shared_ptr<asn1SccMultiLayeredMap>    demMsgOutput;
+            std::shared_ptr<asn1SccMap> demRasterMsgOutput;
 
             byte*                   perBuffer;
             byte*                   perBufferRaster;
@@ -30,11 +31,11 @@ namespace atlaas{
             BitStream encode_message(/*demMsgOutput, dyninter*/);
             BitStream encode_raster(/*demRasterMsgOutput*/);
 
-            void setPcInput(const std::shared_ptr<PointCloud_InFuse> ptr){pcMsgInput = ptr;}
-            const std::shared_ptr<DigitalElevationMap> getLocalMap(){return demMsgOutput;}
+            void setPcInput(const std::shared_ptr<asn1SccPointcloud> ptr){pcMsgInput = ptr;}
+            const std::shared_ptr<asn1SccMultiLayeredMap> getLocalMap(){return demMsgOutput;}
 
             void print_inputMsg();
-            void printPose(Pose_InFuse pose);
+            void printPose(asn1SccTransformWithCovariance pose);
     };
 };
 
