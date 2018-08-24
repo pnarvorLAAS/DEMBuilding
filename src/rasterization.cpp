@@ -1,7 +1,7 @@
 #ifndef __RASTERIZATION_CPP__
 #define __RASTERIZATION_CPP__
 
-#include <atlaas/rasterization.hpp>
+#include <infuse_dem_building/rasterization.hpp>
 
 
 #define EXPORT_LOCALMAP 1

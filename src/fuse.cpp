@@ -1,7 +1,7 @@
 #ifndef __FUSE_CPP__
 #define __FUSE_CPP__
 
-#include <atlaas/fuse.hpp>
+#include <infuse_dem_building/fuse.hpp>
 
 namespace atlaas
 {
