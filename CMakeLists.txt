@@ -1,108 +1,163 @@
 cmake_minimum_required(VERSION 3.0)
+project(infuse_dem_building VERSION "0.1")
 
-project(atlaas VERSION "0.1.6")
-set(PACKAGE_NAME ${PROJECT_NAME})
-set(PACKAGE_VERSION ${${PROJECT_NAME}_VERSION})
+set(CMAKE_CXX_STANDARD 11)
+set(PKG_DESCRIPTION "Digital Elevation Model (DEM) building library")
 
-option(BUILD_TESTS  "Build tests" ON)
-#option(BUILD_TOOLS  "Build tools" OFF)
-#option(BUILD_DOC    "Build documentation" OFF)
-#option(BUILD_WPCL   "Build with the PointCloud library" OFF)
-
-# C++11 for GCC 4.6
+# This is here to enabable cmake to find GSL and GdalWrap
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
-# C++11 GDAL wrapper
 find_package(GdalWrap REQUIRED)
-# least square, see region.hpp, lstsq.cpp
 find_package(GSL REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 
-include_directories(include)
-include_directories(${GDALWRAP_INCLUDE_DIRS})
-include_directories(${GSL_INCLUDE_DIRS})
-include_directories(${EIGEN3_INCLUDE_DIRS})
-#include_directories(../../Types/C/)
-#include_directories(../../Conversions/include)
+set(REQUIRED_COMPONENTS "eigen3, gsl, gdalwrap")
 
-# Load the 'install_pkg_config_file' macro
-include(InstallPkgConfigFile)
+option(WITH_ASN1 "Compile the ASN.1 Wrapper of infuse_dem_building" TRUE)
 
-# RPath management http://www.cmake.org/Wiki/CMake_RPATH_handling
-set(CMAKE_SKIP_BUILD_RPATH  FALSE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-if("${isSystemDir}" STREQUAL "-1")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-endif("${isSystemDir}" STREQUAL "-1")
+if (WITH_ASN1)
+    find_package(infuse_asn1_types REQUIRED)
+    find_package(infuse_asn1_conversions REQUIRED)
+    
+    set(SOURCES
+        src/pctransform.cpp
+        src/rasterization.cpp
+        src/fuse.cpp
+        #src/pctransformASN1.cpp
+        #src/rasterizationASN1.cpp
+        #src/fuseASN1.cpp
+        )
 
+    set(HEADERS
+        include/infuse_dem_building/pctransform.hpp
+        include/infuse_dem_building/rasterization.hpp
+        include/infuse_dem_building/fuse.hpp
+        #include/infuse_dem_building/pctransformASN1.hpp
+        #include/infuse_dem_building/rasterizationASN1.hpp
+        #include/infuse_dem_building/fuseASN1.hpp
+        )
 
-set(PRIVATE_LIBS -lasn1-infuse-types)
-set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
+    add_library(${PROJECT_NAME} SHARED ${SOURCES})
+    target_link_libraries(${PROJECT_NAME}  ${GDALWRAP_LIBRARIES} ${GSL_LIBRARIES} infuse_asn1_conversions::base_conversions infuse_asn1_types::infuse_asn1_types)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${GDALWRAP_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} PRIVATE include/)
+    set_target_properties(${PROJECT_NAME}
+                            PROPERTIES
+                                VERSION ${PROJECT_VERSION}
+                                OUTPUT_NAME ${PROJECT_NAME}
+                                PUBLIC_HEADER "${HEADERS}"
+                                )
 
+    string(APPEND REQUIRED_COMPONENTS ", infuse_asn1_types, infuse_asn1_conversions_pom")
 
-file(GLOB atlaas_SRCS "src/*.cpp")
-add_library( atlaas SHARED ${atlaas_SRCS} )
-target_link_libraries( atlaas ${GDALWRAP_LIBRARIES} )
-target_link_libraries( atlaas ${GSL_LIBRARIES} )
-target_link_libraries( atlaas ${PCL_LIBRARIES})
-target_link_libraries( atlaas cdff_types asn1_conversions)
-add_dependencies(atlaas cdff_types asn1_conversions)
+else()
+    message(STATUS "\n\n[ATTENTION] You're currently compiling CRISP without ASN.1 support. This is not supported at the moment.\n\n")
 
-set(DEPENDENCIES "gdal gdalwrap gsl eigen3 cdff_types asn1_conversions")
-set(HEADERS_DIR "include")
-set(LIBRARY_NAME "atlaas")
-configure_file(${CMAKE_SOURCE_DIR}/template.pc.in ${CMAKE_BINARY_DIR}/pkgconfig/atlaas.pc @ONLY) 
+endif(WITH_ASN1)
 
-
-#if (BUILD_TESTS)
-#  include( CTest )
-#  add_subdirectory(test)
-#endif(BUILD_TESTS)
-
-#if (BUILD_WPCL)
-#  find_package(PCL 1.3 REQUIRED COMPONENTS common io filters)
-#  include_directories(${PCL_INCLUDE_DIRS})
-#  link_directories(${PCL_LIBRARY_DIRS})
-#  add_definitions(${PCL_DEFINITIONS})
-#  add_definitions(-D_USE_PCL)
-#endif(BUILD_WPCL)
+# Introduce variables:
+# * CMAKE_INSTALL_LIBDIR
+# * CMAKE_INSTALL_BINDIR
+# * CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs)
 
 
-#if (BUILD_TOOLS)
-#  add_subdirectory(tools)
-#endif(BUILD_TOOLS)
+# Layout. This works for all platforms:
+#   * <prefix>/lib*/cmake/<PROJECT-NAME>
+#   * <prefix>/lib*/
+#   * <prefix>/include/
+set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+
+# This is exclusive for pkg-config
+set(pkgconfig_install_dir "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 
-#if (BUILD_DOC)
-#  find_package(Doxygen)
-#  if(DOXYGEN_FOUND)
-#    configure_file( doxyfile.dox.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile.dox @ONLY)
-#    add_custom_target( doc ALL
-#      ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile.dox
-#      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-#      COMMENT "Generating documentation (Doxygen)" VERBATIM )
-#  endif(DOXYGEN_FOUND)
-#endif(BUILD_DOC)
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
-## Install headers
-#file(GLOB atlaas_HDRS "include/atlaas/*.hpp")
-#install(FILES ${atlaas_HDRS} DESTINATION include/atlaas)
-#file(GLOB types_HDRS "../../Types/C/*.h")
-#install(FILES ${types_HDRS} DESTINATION include)
 
-## Install
-file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
- "include/atlaas/*.hpp"
+# Configuration
+set(version_config "${generated_dir}/${PROJECT_NAME}ConfigVersion.cmake")
+set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
+set(pkgconfig_file "${generated_dir}/${PROJECT_NAME}.pc")
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
+#
+#
+# Include module with fuctions:
+#   * 'write_basic_package_version_file'
+#   * 'configure_package_config_file'
+include(CMakePackageConfigHelpers)
+#
+#
+# Configure '<PROJECT-NAME>ConfigVersion.cmake'
+# Uses:
+#   * PROJECT_VERSION
+write_basic_package_version_file(
+  "${version_config}" COMPATIBILITY SameMajorVersion
 )
-set(HEADERS_INSTALL_DIR include/atlaas)
-set(LIB_INSTALL_DIR lib)
-include(${CMAKE_SOURCE_DIR}/CMakeModules/CDFF_at_LAAS-install.cmake)
 
-#########################################################################
-### Uninstall ###
-#########################################################################
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/cmake_uninstall.cmake.in" "cmake_uninstall.cmake" IMMEDIATE @ONLY)
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P "cmake_uninstall.cmake")
+# Configure '<PROJECT-NAME>Config.cmake'
+# Uses variables:
+#   * TARGETS_EXPORT_NAME
+#   * PROJECT_NAME
+#   * CMAKE_INSTALL_INCLUDEDIR
+configure_package_config_file(
+    "cmake/Config.cmake.in"
+    "${project_config}"
+    INSTALL_DESTINATION "${config_install_dir}"
+    PATH_VARS
+      CMAKE_INSTALL_INCLUDEDIR
+)
+
+# Configure '<PROJECT-NAME>.pc'
+# Uses variables:
+#   * PROJECT_NAME
+#   * PROJECT_VERSION
+#   * CMAKE_INSTALL_PREFIX
+#   * CMAKE_INSTALL_LIBDIR
+#   * CMAKE_INSTALL_INCLUDEDIR
+configure_file(
+    "cmake/pkgconfig.pc.cmakein"
+    "${pkgconfig_file}" @ONLY
+)
+
+
+####
+# Installation
+
+
+# Targets:
+#   * <prefix>/lib/lib${PROJECT_NAME}.so
+#   * header location after install: <prefix>/include/${PROJECT_NAME}/*.h
+#   * headers can be included by C++ code `#include <${PROJECT_NAME}/*.h>`
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}"
+)
+
+
+# Config
+#   * <prefix>/lib/cmake/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake
+#   * <prefix>/lib/cmake/${PROJECT_NAME}/${PROJECT_NAME}ConfigVersion.cmake
+install(
+    FILES "${project_config}" "${version_config}"
+    DESTINATION "${config_install_dir}"
+)
+
+
+# Config
+#   * <prefix>/lib/pkgconfig/${PROJECT_NAME}.pc
+install(
+    FILES "${pkgconfig_file}"
+    DESTINATION "${pkgconfig_install_dir}")
+
+
+# Config
+#   * <prefix>/lib/cmake/infuse_cdff_types/infuse_cdff_typesTargets.cmake
+install(
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    DESTINATION "${config_install_dir}"
+)

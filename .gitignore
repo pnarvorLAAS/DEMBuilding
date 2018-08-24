@@ -1,6 +1,7 @@
 # folders
 tmp/
 build/
+install/
 # python
 *.pyc
 # other files
