@@ -4,7 +4,7 @@
 #include <infuse_dem_building/pctransform.hpp>
 #include <iostream>
 
-namespace atlaas{
+namespace dem_building{
 
     cloudTransform::cloudTransform()
     {

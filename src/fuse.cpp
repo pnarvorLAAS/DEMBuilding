@@ -3,7 +3,7 @@
 
 #include <infuse_dem_building/fuse.hpp>
 
-namespace atlaas
+namespace dem_building
 {
     mapFuser::mapFuser()
     {

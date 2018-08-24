@@ -30,7 +30,7 @@
 #define LOG(msg) std::cout << msg << std::endl;
 #endif
 
-namespace atlaas {
+namespace dem_building {
 
 static const std::vector<std::string> MAP_NAMES =
      {"N_POINTS", "Z_MIN", "Z_MAX", "Z_MEAN", "VARIANCE", "TIME", "DIST_SQ"};
@@ -231,7 +231,7 @@ bool any_gt_zero(const Container& c) {
     return std::any_of(c.begin(), c.end(), [](float elt){ return elt > 0; });
 }
 
-} // namespace atlaas
+} // namespace dem_building
 
 
 
@@ -286,4 +286,4 @@ inline std::ostream& operator<<(std::ostream& os, const std::map<T1, T2>& m) {
 
 } // namespace std
 
-#endif // ATLAAS_COMMON_HPP
+#endif // dem_building_COMMON_HPP

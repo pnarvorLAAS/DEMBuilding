@@ -3,27 +3,27 @@
 
 #include <memory>
 #include <infuse_dem_building/pctransform.hpp>
-#include <infuse_dem_building/PointCloud_InFuse.h>
 
+#include <infuse_asn1_types/Pointcloud.h>
 #include <infuse_asn1_types/TransformWithCovariance.h>
 #include <infuse_asn1_types/Time.h>
 
-#include <infuse_asn1_conversions/asn1_conversions.hpp>
+#include <infuse_asn1_conversions/asn1_base_conversions.hpp>
 
 #define DEFAULT_FIXED_FRAME "LocalTerrainFrame"
 
-namespace atlaas{
+namespace dem_building{
 
 class cloudTransformASN1: public cloudTransform
 {
     private:
             
-        std::shared_ptr<PointCloud_InFuse>      pcMsgInput; // Message to decode
-        std::shared_ptr<PointCloud_InFuse>      pcMsgOutput; // Encoded message to publish
-        std::unique_ptr<Pose_InFuse>            transformToWorld; // Transform from robot body frame to world
+        std::shared_ptr<asn1SccPointcloud>      pcMsgInput; // Message to decode
+        std::shared_ptr<asn1SccPointcloud>      pcMsgOutput; // Encoded message to publish
+        std::unique_ptr<asn1SccTransformWithCovariance>            transformToWorld; // Transform from robot body frame to world
         byte*                   perBuffer; // Will be allocated once to the right message size (point cloud)
         byte*                   perBufferPose; // Will be allocated once to the right message size (pose)
-        Time                    lastMsgTimeStamp;
+        asn1SccTime             lastMsgTimeStamp;
             
     public:
         cloudTransformASN1();
@@ -37,17 +37,17 @@ class cloudTransformASN1: public cloudTransform
         void print_inputMsg();
         void print_outputMsg();
         bool decode_pose(BitStream &msg);
-        bool update_outputMsg(/*pcMsgOutput,pointCloud, tfSensor2World*/);
+        bool update_outputMsg(/*pcMsgOutput,asn1SccPointcloud, tfSensor2World*/);
         bool update_transform(/*pcMsgInput,tfSensor2World*/);
-        bool update_pointCloud(/*pcMsgInput,pointCloud*/);
+        bool update_pointCloud(/*pcMsgInput,asn1SccPointcloud*/);
         BitStream encode_message(/*pcMsgOutput*/);
         BitStream create_request(/*pcMsgInput*/);
 
-        //Helper function to print a Pose_InFuse 
-        void printPose(Pose_InFuse pose); 
+        //Helper function to print a asn1SccTransformWithCovariance 
+        void printPose(asn1SccTransformWithCovariance pose); 
 
         //Getter to avoid copy, should be used with caution
-        const std::shared_ptr<PointCloud_InFuse> getPcOutput(){return pcMsgOutput;}
+        const std::shared_ptr<asn1SccPointcloud> getPcOutput(){return pcMsgOutput;}
 
 };
 

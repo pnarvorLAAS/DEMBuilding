@@ -6,7 +6,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace atlaas{
+namespace dem_building{
 
     class mapFuser{
         protected:

@@ -23,7 +23,7 @@ if (WITH_ASN1)
         src/pctransform.cpp
         src/rasterization.cpp
         src/fuse.cpp
-        #src/pctransformASN1.cpp
+        src/pctransformASN1.cpp
         #src/rasterizationASN1.cpp
         #src/fuseASN1.cpp
         )
@@ -32,7 +32,7 @@ if (WITH_ASN1)
         include/infuse_dem_building/pctransform.hpp
         include/infuse_dem_building/rasterization.hpp
         include/infuse_dem_building/fuse.hpp
-        #include/infuse_dem_building/pctransformASN1.hpp
+        include/infuse_dem_building/pctransformASN1.hpp
         #include/infuse_dem_building/rasterizationASN1.hpp
         #include/infuse_dem_building/fuseASN1.hpp
         )

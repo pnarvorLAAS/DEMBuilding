@@ -7,7 +7,7 @@
 #define EXPORT_LOCALMAP 1
 #define EXPORT_LOCALRASTER 1
 
-namespace atlaas{
+namespace dem_building{
 
     pcRasterizer::pcRasterizer()
     {

@@ -5,7 +5,7 @@
 #include <infuse_dem_building/common.hpp>
 #include <Eigen/Geometry>
 
-namespace atlaas{
+namespace dem_building{
 
     class pcRasterizer
     {
