@@ -157,43 +157,51 @@ namespace dem_building{
 
         bool pcRasterizerASN1::update_rasterMsg(/*demRasterMsgOutput,dyninter*/)
         {
-            return 1;
-            //demRasterMsgOutput->header = pcMsgInput->header;
-        //    demRasterMsgOutput->nbLines = height;
-        //    demRasterMsgOutput->nbCols = width;
-        //    demRasterMsgOutput->zValue.nCount = height*width;
+            // Fill metadata
 
-        //    for (int i = 0; i < width*height; i++)
-        //    {   
-        //        demRasterMsgOutput->zValue.arr[i]  = dyninter[i][Z_MEAN];
-        //    }
+            demRasterMsgOutput->metadata.msgVersion = map_Version;
+            
+            demRasterMsgOutput->metadata.type = asn1Sccmap_DEM;
+            demRasterMsgOutput->metadata.scale  = 0.1;
+            demRasterMsgOutput->metadata.pose_fixedFrame_mapFrame = pcMsgInput->metadata.pose_fixedFrame_robotFrame;
 
-        //    std::cout << "Dem Raster info" << std::endl;
-        //    std::cout << "== Height = " << demRasterMsgOutput->nbLines << std::endl;
-        //    std::cout << "== Width = " << demRasterMsgOutput->nbCols << std::endl;
-        //    std::cout << "== ZValue.nCount = " << demRasterMsgOutput->zValue.nCount <<std::endl;
+            // Fill 3DARRAY Metadata
+
+            demRasterMsgOutput->data.msgVersion = array3D_Version;
+            demRasterMsgOutput->data.rows = height;
+            demRasterMsgOutput->data.cols = width;
+            demRasterMsgOutput->data.channels = 1;
+            demRasterMsgOutput->data.depth = asn1Sccdepth_32F;
+            demRasterMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
+
+            demRasterMsgOutput->data.data.nCount = height*width;
+
+            for (int i = 0; i < width*height; i++)
+            {   
+                demRasterMsgOutput->data.data.arr[asn1Sccdepth_32F*i]  = dyninter[i][Z_MEAN];
+            }
         }
 
         BitStream pcRasterizerASN1::encode_raster(/*demRasterMsgOutput*/)
         {
             BitStream bu;
             return bu;
-        //    std::cout << "Entering the encode function" << std::endl;
-        //    BitStream msg;
-        //    int errorCode;
-        //    BitStream_Init(&msg,perBufferRaster,asn1SccMap_REQUIRED_BYTES_FOR_ENCODING);
+            std::cout << "Entering the encode function" << std::endl;
+            BitStream msg;
+            int errorCode;
+            BitStream_Init(&msg,perBufferRaster,asn1SccMap_REQUIRED_BYTES_FOR_ENCODING);
 
-        //    if (!asn1SccMap_Encode(demRasterMsgOutput.get(),&msg,&errorCode,TRUE))
-        //    {
-        //        std::cout << "[Encoding Raster] failed. Error code: " << errorCode << std::endl;
-        //        clean_up();
-        //        exit(-1);
-        //    }
-        //    else
-        //    {
-        //        return msg;
-        //    }
-        //    
+            if (!asn1SccMap_Encode(demRasterMsgOutput.get(),&msg,&errorCode,TRUE))
+            {
+                std::cout << "[Encoding Raster] failed. Error code: " << errorCode << std::endl;
+                clean_up();
+                exit(-1);
+            }
+            else
+            {
+                return msg;
+            }
+            
         }
 
         BitStream pcRasterizerASN1::encode_message(/*demMsgOutput*/)
