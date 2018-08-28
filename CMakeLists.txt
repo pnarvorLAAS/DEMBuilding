@@ -25,7 +25,7 @@ if (WITH_ASN1)
         src/fuse.cpp
         src/pctransformASN1.cpp
         src/rasterizationASN1.cpp
-        #src/fuseASN1.cpp
+        src/fuseASN1.cpp
         )
 
     set(HEADERS
@@ -34,7 +34,7 @@ if (WITH_ASN1)
         include/infuse_dem_building/fuse.hpp
         include/infuse_dem_building/pctransformASN1.hpp
         include/infuse_dem_building/rasterizationASN1.hpp
-        #include/infuse_dem_building/fuseASN1.hpp
+        include/infuse_dem_building/fuseASN1.hpp
         )
 
     add_library(${PROJECT_NAME} SHARED ${SOURCES})

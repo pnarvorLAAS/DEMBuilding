@@ -1,12 +1,12 @@
 #include <infuse_dem_building/fuseASN1.hpp>
 
-namespace atlaas
+namespace dem_building
 {
     mapFuserASN1::mapFuserASN1()
     {
-        demMsgInput = std::make_shared<DigitalElevationMap>();
-        demRasterOutput = std::make_shared<DigitalElevationRaster>();
-        perBuffer = (byte*) malloc(sizeof(byte)*DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
+        demMsgInput = std::make_shared<asn1SccMultiLayeredMap>();
+        demRasterOutput = std::make_shared<asn1SccMap>();
+        perBuffer = (byte*) malloc(sizeof(byte)*asn1SccMap_REQUIRED_BYTES_FOR_ENCODING);
     }
 
     mapFuserASN1::~mapFuserASN1()
@@ -22,7 +22,7 @@ namespace atlaas
     bool mapFuserASN1::decode_message(BitStream msg)
     {
         int errorCode;
-        if (!DigitalElevationMap_Decode(demMsgInput.get(),&msg,&errorCode))
+        if (!asn1SccMultiLayeredMap_Decode(demMsgInput.get(),&msg,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
@@ -69,15 +69,28 @@ namespace atlaas
     
     bool mapFuserASN1::update_outputMsg()
     {
-        demRasterOutput->nbLines = demMsgInput->nbLines;
-        demRasterOutput->nbCols = demMsgInput->nbCols;
+        // Fill metadata
+
+        demRasterOutput->metadata.msgVersion = map_Version;
         
-        for (int i = 0; i < (int) (width*height); i++)
+        demRasterOutput->metadata.type = asn1Sccmap_DEM;
+        demRasterOutput->metadata.scale  = 0.1;
+
+        // Fill 3DARRAY Metadata
+
+        demRasterOutput->data.msgVersion = array3D_Version;
+        demRasterOutput->data.rows = height;
+        demRasterOutput->data.cols = width;
+        demRasterOutput->data.channels = 1;
+        demRasterOutput->data.depth = asn1Sccdepth_32F;
+        demRasterOutput->data.rowSize = width*asn1Sccdepth_32F;
+
+        demRasterOutput->data.data.nCount = height*width;
+
+        for (int i = 0; i < width*height; i++)
         {   
-            demRasterOutput->zValue.arr[i]  = fusedMap[i][Z_MEAN];
+            demRasterOutput->data.data.arr[asn1Sccdepth_32F*i]  = fusedMap[i][Z_MEAN];
         }
-        demRasterOutput->zValue.nCount = width*height;
-        return true;
     }
     
     BitStream mapFuserASN1::encode_message(/*demRasterOutput*/)
@@ -85,9 +98,9 @@ namespace atlaas
         BitStream msg;
         int errorCode;
 
-        BitStream_Init(&msg,perBuffer,DigitalElevationRaster_REQUIRED_BYTES_FOR_ENCODING);
+        BitStream_Init(&msg,perBuffer,asn1SccMap_REQUIRED_BYTES_FOR_ENCODING);
 
-        if (!DigitalElevationRaster_Encode(demRasterOutput.get(),&msg,&errorCode,TRUE))
+        if (!asn1SccMap_Encode(demRasterOutput.get(),&msg,&errorCode,TRUE))
         {
             std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
             exit(-1);

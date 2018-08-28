@@ -3,15 +3,16 @@
 
 #include <infuse_dem_building/fuse.hpp>
 #include <infuse_asn1_types/Map.h>
+#include <infuse_asn1_types/MultiLayeredMap.h>
 #include <memory>
 
-namespace atlaas{
+namespace dem_building{
 
     class mapFuserASN1 : public mapFuser
     {
         private:
-            std::shared_ptr<DigitalElevationMap>    demMsgInput;
-            std::shared_ptr<DigitalElevationRaster> demRasterOutput;
+            std::shared_ptr<asn1SccMultiLayeredMap>    demMsgInput;
+            std::shared_ptr<asn1SccMap> demRasterOutput;
             byte*                   perBuffer;
 
         public:
@@ -25,7 +26,7 @@ namespace atlaas{
             bool update_outputMsg(/*fusedMap,demMsgOutput*/);
             BitStream encode_message(/*demMsgOutput*/);
 
-            void setLocalMap(std::shared_ptr<DigitalElevationMap> ptr){demMsgInput = ptr;}
+            void setLocalMap(std::shared_ptr<asn1SccMultiLayeredMap> ptr){demMsgInput = ptr;}
     };
     
 };
