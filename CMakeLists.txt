@@ -29,6 +29,7 @@ if (WITH_ASN1)
         )
 
     set(HEADERS
+        include/infuse_dem_building/common.hpp
         include/infuse_dem_building/pctransform.hpp
         include/infuse_dem_building/rasterization.hpp
         include/infuse_dem_building/fuse.hpp
