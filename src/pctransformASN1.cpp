@@ -253,11 +253,10 @@ namespace dem_building{
 
         asn1SccTransformWithCovariance request;
         toASN1SCC(fixedFrame,request.metadata.parentFrameId);
-        //request.metadata.childFrameId = pcMsgInput->metadata.pose_robotFrame_sensorFrame.metadata.parentFrameId;
+        request.metadata.childFrameId = pcMsgInput->metadata.pose_robotFrame_sensorFrame.metadata.parentFrameId;
+        request.metadata.producerId = pcMsgInput->metadata.pose_robotFrame_sensorFrame.metadata.producerId;
 
-        //TODO FIX THIS
         std::string childFrame("RoverBodyFrame");
-
         toASN1SCC(childFrame,request.metadata.childFrameId);
         request.metadata.msgVersion = transformWithCovariance_version;
         request.metadata.parentTime = pcMsgInput->metadata.timeStamp;
