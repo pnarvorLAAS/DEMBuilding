@@ -160,7 +160,7 @@ namespace dem_building{
             // Fill metadata
 
             demRasterMsgOutput->metadata.msgVersion = map_Version;
-            
+            demRasterMsgOutput->metadata.timeStamp = pcMsgInput->metadata.timeStamp;
             demRasterMsgOutput->metadata.type = asn1Sccmap_DEM;
             demRasterMsgOutput->metadata.scale  = 0.1;
             demRasterMsgOutput->metadata.pose_fixedFrame_mapFrame = pcMsgInput->metadata.pose_fixedFrame_robotFrame;
@@ -174,18 +174,16 @@ namespace dem_building{
             demRasterMsgOutput->data.depth = asn1Sccdepth_32F;
             demRasterMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
 
-            demRasterMsgOutput->data.data.nCount = height*width;
+            demRasterMsgOutput->data.data.nCount = height*width*sizeof(float);
 
             for (int i = 0; i < width*height; i++)
             {   
-                demRasterMsgOutput->data.data.arr[asn1Sccdepth_32F*i]  = dyninter[i][Z_MEAN];
+                ((float*)demRasterMsgOutput->data.data.arr)[i]  = dyninter[i][Z_MEAN];
             }
         }
 
         BitStream pcRasterizerASN1::encode_raster(/*demRasterMsgOutput*/)
         {
-            BitStream bu;
-            return bu;
             std::cout << "Entering the encode function" << std::endl;
             BitStream msg;
             int errorCode;
@@ -199,6 +197,7 @@ namespace dem_building{
             }
             else
             {
+                std::cout << "[Encoding Raster] Succeeded: count is " << msg.count << std::endl;
                 return msg;
             }
             

@@ -52,15 +52,15 @@ namespace dem_building
         scale = demMsgInput->scale;
 
         /* DEBUG */
-        //for (int i  = 0; i < width*height; i++)
-        //{
-        //    if (roverMap[i][Z_MEAN] != 0)
-        //    {
-        //        std::cout << "Found non zero: " << roverMap[i][Z_MEAN] <<  std::endl;
-        //        std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
-        //        return 1;
-        //    }
-        //}
+        for (int i  = 0; i < width*height; i++)
+        {
+            if (roverMap[i][Z_MEAN] != 0)
+            {
+                std::cout << "Found non zero: " << roverMap[i][Z_MEAN] <<  std::endl;
+                std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
+                return 1;
+            }
+        }
 
         /* DEBUG */
 
@@ -85,11 +85,11 @@ namespace dem_building
         demRasterOutput->data.depth = asn1Sccdepth_32F;
         demRasterOutput->data.rowSize = width*asn1Sccdepth_32F;
 
-        demRasterOutput->data.data.nCount = height*width;
+        demRasterOutput->data.data.nCount = height*width*sizeof(float);
 
         for (int i = 0; i < width*height; i++)
         {   
-            demRasterOutput->data.data.arr[asn1Sccdepth_32F*i]  = fusedMap[i][Z_MEAN];
+            ((float*)demRasterOutput->data.data.arr)[i]  = fusedMap[i][Z_MEAN];
         }
     }
     
