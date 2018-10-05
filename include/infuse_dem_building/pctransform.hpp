@@ -78,6 +78,10 @@ class cloudTransform
         {
             return fixedFrame;
         }
+
+        void save_pcd(const std::string& filename);
+        void read_pcd(const std::string& filename);
+
 };
 
 };

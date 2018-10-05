@@ -4,6 +4,10 @@
 #include <infuse_dem_building/pctransform.hpp>
 #include <iostream>
 
+#ifdef _WITH_PCL
+    #include <infuse_dem_building/pcd.hpp>
+#endif
+
 namespace dem_building{
 
     cloudTransform::cloudTransform()
@@ -35,6 +39,33 @@ namespace dem_building{
         }
         return true;
     }
+
+    #ifdef _WITH_PCL
+
+    void cloudTransform::save_pcd(const std::string& filename)
+    {
+        write_pcd(filename, pointCloud, tfSensor2World);
+    }
+
+    void cloudTransform::read_pcd(const std::string& filename)
+    {
+        read_pcd_file(filename, pointCloud, tfSensor2World);
+    }
+
+    #else
+    
+    void cloudTransform::save_pcd(const std::string& filename)
+    {
+        std::cout << "Support for PCL was not compiled, add compile option WITH_PCL to infuse_dem_building" << std::endl;
+    }
+
+    void cloudTransform::read_pcd(const std::string& filename)
+    {
+        std::cout << "Support for PCL was not compiled, add compile option WITH_PCL to infuse_dem_building" << std::endl;
+    }
+
+    #endif
+
 }
 
 #endif
