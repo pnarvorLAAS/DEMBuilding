@@ -13,7 +13,8 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 
 set(REQUIRED_COMPONENTS "eigen3, gsl, gdalwrap")
 
-option(WITH_ASN1 "Compile the ASN.1 Wrapper of infuse_dem_building" TRUE)
+option(WITH_ASN1    "Compile the ASN.1 Wrapper of infuse_dem_building" FALSE)
+option(WITH_PCL     "Compile the PCL input/output functions of infuse_dem_building" FALSE)
 
 if (WITH_ASN1)
     find_package(infuse_asn1_types REQUIRED)
@@ -28,6 +29,7 @@ if (WITH_ASN1)
         src/fuseASN1.cpp
         )
 
+
     set(HEADERS
         include/infuse_dem_building/common.hpp
         include/infuse_dem_building/pctransform.hpp
@@ -37,10 +39,22 @@ if (WITH_ASN1)
         include/infuse_dem_building/rasterizationASN1.hpp
         include/infuse_dem_building/fuseASN1.hpp
         )
+    
+    if (WITH_PCL)
+        find_package(PCL 1.7 REQUIRED COMPONENTS common io filters)
+        list(APPEND  SOURCES "src/pcd.cpp")
+        list(APPEND  HEADERS "include/infuse_dem_building/pcd.hpp")
+        add_definitions(${PCL_DEFINITIONS})
+        add_definitions(-D_WITH_PCL)
+    endif(WITH_PCL)
 
     add_library(${PROJECT_NAME} SHARED ${SOURCES})
     target_link_libraries(${PROJECT_NAME}  ${GDALWRAP_LIBRARIES} ${GSL_LIBRARIES} infuse_asn1_conversions::base_conversions infuse_asn1_types::infuse_asn1_types)
     target_include_directories(${PROJECT_NAME} PUBLIC ${GDALWRAP_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} PRIVATE include/)
+    if (WITH_PCL)
+        target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
+    endif(WITH_PCL)
     set_target_properties(${PROJECT_NAME}
                             PROPERTIES
                                 VERSION ${PROJECT_VERSION}
@@ -51,7 +65,43 @@ if (WITH_ASN1)
     string(APPEND REQUIRED_COMPONENTS ", infuse_asn1_types, infuse_asn1_conversions_pom")
 
 else()
-    message(STATUS "\n\n[ATTENTION] You're currently compiling CRISP without ASN.1 support. This is not supported at the moment.\n\n")
+    
+    set(SOURCES
+        src/pctransform.cpp
+        src/rasterization.cpp
+        src/fuse.cpp
+        )
+
+
+    set(HEADERS
+        include/infuse_dem_building/common.hpp
+        include/infuse_dem_building/pctransform.hpp
+        include/infuse_dem_building/rasterization.hpp
+        include/infuse_dem_building/fuse.hpp
+        )
+    
+    if (WITH_PCL)
+        find_package(PCL 1.7 REQUIRED COMPONENTS common io filters)
+        list(APPEND  SOURCES "src/pcd.cpp")
+        list(APPEND  HEADERS "include/infuse_dem_building/pcd.hpp")
+        add_definitions(${PCL_DEFINITIONS})
+        add_definitions(-D_WITH_PCL)
+    endif(WITH_PCL)
+
+    add_library(${PROJECT_NAME} SHARED ${SOURCES})
+    target_link_libraries(${PROJECT_NAME}  ${GDALWRAP_LIBRARIES} ${GSL_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${GDALWRAP_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} PRIVATE include/)
+    if (WITH_PCL)
+        target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
+    endif(WITH_PCL)
+
+    set_target_properties(${PROJECT_NAME}
+                            PROPERTIES
+                                VERSION ${PROJECT_VERSION}
+                                OUTPUT_NAME ${PROJECT_NAME}
+                                PUBLIC_HEADER "${HEADERS}"
+                                )
 
 endif(WITH_ASN1)
 
