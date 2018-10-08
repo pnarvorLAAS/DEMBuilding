@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(PKG_DESCRIPTION "Digital Elevation Model (DEM) building library")
 
 # This is here to enabable cmake to find GSL and GdalWrap
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+if (WITH_ASN1)
+    set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+endif(WITH_ASN1)
 
 find_package(GdalWrap REQUIRED)
 find_package(GSL REQUIRED)
