@@ -7,7 +7,10 @@ set(PKG_DESCRIPTION "Digital Elevation Model (DEM) building library")
 # This is here to enabable cmake to find GSL and GdalWrap
 if (WITH_ASN1)
     set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+else()
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 endif(WITH_ASN1)
+
 
 find_package(GdalWrap REQUIRED)
 find_package(GSL REQUIRED)
