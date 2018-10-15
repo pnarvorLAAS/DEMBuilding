@@ -174,6 +174,8 @@ namespace dem_building{
             (*it)[3] = pcMsgInput->data.intensity.arr[i]; 
             it++;
         }
+
+        timeStamp = pcMsgInput->metadata.timeStamp.microseconds;
         return true;
     }
 

@@ -32,6 +32,9 @@ class cloudTransform
         /* Test variabes */
 
         int                     cloudSize;
+        std::string             dataPath; // Path to pointcloud location
+        long long               timeStamp;
+
 
 
 
@@ -44,6 +47,11 @@ class cloudTransform
 
         bool transform_pointCloud(/*pointCloud*/);
 
+        const std::string createPcIndex()
+        {
+            return dataPath + "/pc" + std::to_string(timeStamp) + ".pcd";
+        }
+
         /* Setters and getters for DEBUG */
 
         bool set_transform(matrix tfToSet)
@@ -51,6 +59,11 @@ class cloudTransform
             tfSensor2World=tfToSet;
             return true;
         };
+
+        bool set_dataPath(const std::string path)
+        {
+            dataPath = path;
+        }
 
         matrix get_transform()
         {
