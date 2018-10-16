@@ -51,6 +51,7 @@ namespace dem_building{
         {
             logFile << filename << "\n";
         }
+        logFile.close()
 
     }
 
