@@ -49,7 +49,7 @@ namespace dem_building{
         logFile.open(filename.substr(0,filename.find_last_of("/") + 1),std::ofstream::app);
         if (logFile.is_open())
         {
-            logFile << filename << "\n";
+            logFile << timeStamp << " " << filename << "\n";
         }
         logFile.close()
 
