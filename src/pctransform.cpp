@@ -45,6 +45,13 @@ namespace dem_building{
     void cloudTransform::save_pcd(const std::string& filename)
     {
         write_pcd(filename, pointCloud, tfSensor2World);
+        std::ofstream logFile;
+        logFile.open(filename.substr(0,filename.find_last_of("/") + 1),std::ofstream::app);
+        if (logFile.is_open())
+        {
+            logFile << filename << "\n";
+        }
+
     }
 
     void cloudTransform::read_pcd(const std::string& filename)
@@ -57,6 +64,7 @@ namespace dem_building{
     void cloudTransform::save_pcd(const std::string& filename)
     {
         std::cout << "Support for PCL was not compiled, add compile option WITH_PCL to infuse_dem_building" << std::endl;
+
     }
 
     void cloudTransform::read_pcd(const std::string& filename)
