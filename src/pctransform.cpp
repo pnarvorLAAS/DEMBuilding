@@ -51,7 +51,7 @@ namespace dem_building{
         {
             logFile << timeStamp << " " << filename << "\n";
         }
-        logFile.close()
+        logFile.close();
 
     }
 
