@@ -110,6 +110,11 @@ namespace dem_building{
             }
             //std::cout << "]" << std::endl;
 
+            //Update sensor position
+
+            sensor_xy[0] = transformSensor2World(0,3);
+            sensor_xy[1] = transformSensor2World(1,3);
+
             return true;
         }
     
