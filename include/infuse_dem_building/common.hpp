@@ -21,6 +21,7 @@
 #include <sstream> // ostringstream
 #include <iomanip> // setfill,setw
 #include <sys/stat.h> // stat, file_exists
+#include <sys/time.h>
 #include <chrono> // system_clock
 #include <iostream> // cout,endl
 
@@ -45,7 +46,9 @@ typedef std::vector<point_xyzi_t> points;   // PointsXYZI
 typedef std::array<float, N_RASTER> cell_info_t;
 typedef std::vector<cell_info_t> cells_info_t;
 typedef std::array<int, 2> map_id_t; // tiles location
+typedef long long timeValue;
 
+static const unsigned int USECPERSEC = 1000000;
 /**
  * Display
  */
@@ -60,6 +63,16 @@ std::string to_string(const T& t)
 /**
  * System helpers
  */
+
+
+/* Time */ 
+
+static timeValue timeNow()
+{
+    timeval tv;
+    gettimeofday(&tv,NULL);
+    return USECPERSEC * tv.tv_sec + tv.tv_usec; 
+}
 
 /**
  * getenv with default value if the variable is not set
