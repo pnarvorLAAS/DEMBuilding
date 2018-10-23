@@ -4,10 +4,10 @@ namespace dem_building{
         
         pcRasterizerASN1::pcRasterizerASN1()
         {
-            perBuffer = (byte*) malloc(asn1SccMultiLayeredMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
+            perBuffer = (byte*) malloc(asn1SccMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
             perBufferRaster = (byte*)malloc(asn1SccMap_REQUIRED_BYTES_FOR_ENCODING*sizeof(byte));
             pcMsgInput = std::make_shared<asn1SccPointcloud>();
-            demMsgOutput = std::make_shared<asn1SccMultiLayeredMap>(); 
+            demMsgOutput = std::make_shared<asn1SccMap>(); 
             demRasterMsgOutput = std::make_shared<asn1SccMap>();
 
         }
@@ -136,27 +136,68 @@ namespace dem_building{
         bool pcRasterizerASN1::update_outputMsg(/*demMsgOutput*/)
         {
             //Update current tile
-            demMsgOutput->currentTile.arr[0] = current[0];
-            demMsgOutput->currentTile.arr[1] = current[1];
+            //demMsgOutput->currentTile.arr[0] = current[0];
+            //demMsgOutput->currentTile.arr[1] = current[1];
 
-            //Map size
-            demMsgOutput->nbLines = height;
-            demMsgOutput->nbCols = width;
-            demMsgOutput->scale = scaleMap;
-            demMsgOutput->zOrigin = 0.0;
-            demMsgOutput->zScale = 1.0;
-            memcpy(&demMsgOutput->zValue.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
+            ////Map size
+            //demMsgOutput->nbLines = height;
+            //demMsgOutput->nbCols = width;
+            //demMsgOutput->scale = scaleMap;
+            //demMsgOutput->zOrigin = 0.0;
+            //demMsgOutput->zScale = 1.0;
+            //memcpy(&demMsgOutput->zValue.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
 
-            demMsgOutput->zValue.nCount = width*height*N_RASTER;
-            demMsgOutput->state.nCount = 0;
+            //demMsgOutput->zValue.nCount = width*height*N_RASTER;
+            //demMsgOutput->state.nCount = 0;
 
 
 
-            //xorigin,yorigin: coordinates of the top left pixel in world
-	    	const gdalwrap::point_xy_t& custom_origin = meta.point_pix2custom(0, 0);
-	    	demMsgOutput->xOrigin = custom_origin[0];
-	    	demMsgOutput->yOrigin = custom_origin[1];
+            ////xorigin,yorigin: coordinates of the top left pixel in world
+	    //	const gdalwrap::point_xy_t& custom_origin = meta.point_pix2custom(0, 0);
+	    //	demMsgOutput->xOrigin = custom_origin[0];
+	    //	demMsgOutput->yOrigin = custom_origin[1];
 
+            // Fill map metadata
+            
+            demMsgOutput->metadata.msgVersion = map_Version;
+            demMsgOutput->metadata.timeStamp = pcMsgInput->metadata.timeStamp;
+            demMsgOutput->metadata.type = asn1Sccmap_DEM;
+            demMsgOutput->metadata.scale  = 0.1;
+
+            // Fill pose metadata 
+
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.metadata.parentFrameId = pcMsgInput->metadata.pose_fixedFrame_robotFrame.metadata.parentFrameId;
+            toASN1SCC("MapFrame",demMsgOutput->metadata.pose_fixedFrame_mapFrame.metadata.childFrameId);
+
+            timeval tv;
+            gettimeofday(&tv,NULL);
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.metadata.parentTime.microseconds = timeNow();
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.metadata.parentTime.usecPerSec = USECPERSEC; 
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.metadata.childTime = demMsgOutput->metadata.pose_fixedFrame_mapFrame.metadata.parentTime;
+
+            // Fill pose data
+
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[0] = meta.get_utm_pose_x();
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[1] = meta.get_utm_pose_y();
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[2] = 0;
+
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.orientation.arr[0] = 0; 
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.orientation.arr[1] = 0; 
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.orientation.arr[2] = 0; 
+            demMsgOutput->metadata.pose_fixedFrame_mapFrame.data.orientation.arr[3] = 1; 
+
+            // Fill Array3D metadata
+            
+            demRasterMsgOutput->data.msgVersion = array3D_Version;
+            demRasterMsgOutput->data.rows = height;
+            demRasterMsgOutput->data.cols = width;
+            demRasterMsgOutput->data.channels = 7;
+            demRasterMsgOutput->data.depth = asn1Sccdepth_32F;
+            demRasterMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
+
+            demRasterMsgOutput->data.data.nCount = N_RASTER*height*width*sizeof(float);
+            
+            memcpy(&demMsgOutput->data.data.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
             return true;
         }
 
@@ -168,6 +209,7 @@ namespace dem_building{
             demRasterMsgOutput->metadata.timeStamp = pcMsgInput->metadata.timeStamp;
             demRasterMsgOutput->metadata.type = asn1Sccmap_DEM;
             demRasterMsgOutput->metadata.scale  = 0.1;
+
             demRasterMsgOutput->metadata.pose_fixedFrame_mapFrame = pcMsgInput->metadata.pose_fixedFrame_robotFrame;
 
             // Fill 3DARRAY Metadata
@@ -213,9 +255,9 @@ namespace dem_building{
             BitStream msg;
             int errorCode;
 
-            BitStream_Init(&msg,perBuffer,asn1SccMultiLayeredMap_REQUIRED_BYTES_FOR_ENCODING);
+            BitStream_Init(&msg,perBuffer,asn1SccMap_REQUIRED_BYTES_FOR_ENCODING);
 
-            if (!asn1SccMultiLayeredMap_Encode(demMsgOutput.get(),&msg,&errorCode,TRUE))
+            if (!asn1SccMap_Encode(demMsgOutput.get(),&msg,&errorCode,TRUE))
             {
                 std::cout << "[Encoding] failed. Error code: " << errorCode << std::endl;
                 clean_up();
