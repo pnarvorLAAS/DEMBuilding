@@ -3,7 +3,6 @@
 
 #include <infuse_dem_building/fuse.hpp>
 #include <infuse_asn1_types/Map.h>
-#include <infuse_asn1_types/MultiLayeredMap.h>
 #include <memory>
 
 namespace dem_building{
@@ -11,7 +10,7 @@ namespace dem_building{
     class mapFuserASN1 : public mapFuser
     {
         private:
-            std::shared_ptr<asn1SccMultiLayeredMap>    demMsgInput;
+            std::shared_ptr<asn1SccMap>    demMsgInput;
             std::shared_ptr<asn1SccMap> demRasterOutput;
             byte*                   perBuffer;
 
@@ -26,7 +25,7 @@ namespace dem_building{
             bool update_outputMsg(/*fusedMap,demMsgOutput*/);
             BitStream encode_message(/*demMsgOutput*/);
 
-            void setLocalMap(std::shared_ptr<asn1SccMultiLayeredMap> ptr){demMsgInput = ptr;}
+            void setLocalMap(std::shared_ptr<asn1SccMap> ptr){demMsgInput = ptr;}
     };
     
 };

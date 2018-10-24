@@ -4,7 +4,7 @@ namespace dem_building
 {
     mapFuserASN1::mapFuserASN1()
     {
-        demMsgInput = std::make_shared<asn1SccMultiLayeredMap>();
+        demMsgInput = std::make_shared<asn1SccMap>();
         demRasterOutput = std::make_shared<asn1SccMap>();
         perBuffer = (byte*) malloc(sizeof(byte)*asn1SccMap_REQUIRED_BYTES_FOR_ENCODING);
     }
@@ -22,7 +22,7 @@ namespace dem_building
     bool mapFuserASN1::decode_message(BitStream msg)
     {
         int errorCode;
-        if (!asn1SccMultiLayeredMap_Decode(demMsgInput.get(),&msg,&errorCode))
+        if (!asn1SccMap_Decode(demMsgInput.get(),&msg,&errorCode))
         {
             std::cerr << "[Decoding] failed, error code: " << errorCode <<  std::endl;
             return false;
@@ -33,34 +33,31 @@ namespace dem_building
     
     bool mapFuserASN1::update_rovermap(/*demMsgInput,roverMap*/)
     {
-        if (!isInit)
-        {
-            init(demMsgInput->nbCols,demMsgInput->nbLines);
-        }
-        /* The following MIGHT be added inside a separate helperfunction file*/
 
         /* Position of the current center tile */
-        newTile[0] = demMsgInput->currentTile.arr[0];
-        newTile[1] = demMsgInput->currentTile.arr[1];
+
+        point_xy_t pixel = meta.point_utm2pix(demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[0],demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[1]);
+        newTile[0] = current[0] + pixel[0]/sw;
+        newTile[1] = current[1] + pixel[1]/sh ;
 
         /* This line is dangerous : No checking over format, we just go all-in on the fact the the sender organized the data structure well before sending */
 
-        memcpy(&roverMap[0],&demMsgInput->zValue.arr[0],width*height*N_RASTER*sizeof(float));
+        memcpy(&roverMap[0],&demMsgInput->data.data.arr[0],width*height*N_RASTER*sizeof(float));
+        
+        meta.set_transform(demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[0],demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[1],meta.get_scale_x(),meta.get_scale_y());
 
-        xOrigin = demMsgInput->xOrigin;
-        yOrigin = demMsgInput->yOrigin;
-        scale = demMsgInput->scale;
-
+        std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
+        
         /* DEBUG */
-        for (int i  = 0; i < width*height; i++)
-        {
-            if (roverMap[i][Z_MEAN] != 0)
-            {
-                std::cout << "Found non zero: " << roverMap[i][Z_MEAN] <<  std::endl;
-                std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
-                return 1;
-            }
-        }
+
+        //for (int i  = 0; i < width*height; i++)
+        //{
+        //    if (roverMap[i][Z_MEAN] != 0)
+        //    {
+        //        std::cout << "Found non zero: " << roverMap[i][Z_MEAN] <<  std::endl;
+        //        return 1;
+        //    }
+        //}
 
         /* DEBUG */
 
@@ -75,6 +72,10 @@ namespace dem_building
         
         demRasterOutput->metadata.type = asn1Sccmap_DEM;
         demRasterOutput->metadata.scale  = 0.1;
+
+        // Fill Pose
+
+        demRasterOutput->metadata.pose_fixedFrame_mapFrame = demMsgInput->metadata.pose_fixedFrame_mapFrame;
 
         // Fill 3DARRAY Metadata
 
