@@ -135,27 +135,6 @@ namespace dem_building{
     
         bool pcRasterizerASN1::update_outputMsg(/*demMsgOutput*/)
         {
-            //Update current tile
-            //demMsgOutput->currentTile.arr[0] = current[0];
-            //demMsgOutput->currentTile.arr[1] = current[1];
-
-            ////Map size
-            //demMsgOutput->nbLines = height;
-            //demMsgOutput->nbCols = width;
-            //demMsgOutput->scale = scaleMap;
-            //demMsgOutput->zOrigin = 0.0;
-            //demMsgOutput->zScale = 1.0;
-            //memcpy(&demMsgOutput->zValue.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
-
-            //demMsgOutput->zValue.nCount = width*height*N_RASTER;
-            //demMsgOutput->state.nCount = 0;
-
-
-
-            ////xorigin,yorigin: coordinates of the top left pixel in world
-	    //	const gdalwrap::point_xy_t& custom_origin = meta.point_pix2custom(0, 0);
-	    //	demMsgOutput->xOrigin = custom_origin[0];
-	    //	demMsgOutput->yOrigin = custom_origin[1];
 
             // Fill map metadata
             
@@ -196,6 +175,8 @@ namespace dem_building{
             demRasterMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
 
             demRasterMsgOutput->data.data.nCount = N_RASTER*height*width*sizeof(float);
+
+            // Fill actual Array3D data
             
             memcpy(&demMsgOutput->data.data.arr[0],&dyninter[0],width*height*N_RASTER*sizeof(float));
             return true;
