@@ -7,6 +7,7 @@ namespace dem_building
 {
     mapFuser::mapFuser()
     {
+        atlaas_path = "/home/quentin/Desktop/test_tiles";
     }
     
     mapFuser::~mapFuser()
@@ -20,16 +21,22 @@ namespace dem_building
 
 
 
-    void mapFuser::init(int mapWidth, int mapHeight)
+    void mapFuser::init(double size_x,double size_y, double scale,double custom_x, double custom_y, double custom_z,int utm_zone, bool utm_north=true)
     {
         current = {{0,0}};
-        width = mapWidth;
-        height = mapHeight;
+        width  = std::ceil(size_x / scale); 
+        height = std::ceil(size_y / scale);
+
+        scaleMap = scale;
+        
+        //Metadata to know what tiles we need
+        meta.set_size(width, height); // does not change the container
+        meta.set_transform(custom_x, custom_y, scale, -scale);
+        meta.set_utm(utm_zone, utm_north);
+        meta.set_custom_origin(custom_x, custom_y, custom_z);
 
         sw = width / 3;
         sh = height / 3;
-
-        isInit = true;
 
         fusedMap.resize(width * height);
         roverMap.resize(width * height);
@@ -109,7 +116,8 @@ namespace dem_building
         if (any_gt_zero(tile.bands[N_POINTS])) // dont save empty tiles
         { 
             // update map transform used for merging the pointcloud
-            tile.set_transform(xOrigin, yOrigin,scale,scale);
+            point_xy_t tileUTM = meta.point_pix2utm(sx*sw,sy*sh);
+            tile.set_transform(tileUTM[0], tileUTM[1],meta.get_scale_x(),meta.get_scale_y());
             tile.save(tilepath(current[0] + sx, current[1] + sy) );
         }
     }

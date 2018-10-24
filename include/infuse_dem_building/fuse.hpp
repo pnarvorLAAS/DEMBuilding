@@ -17,6 +17,7 @@ namespace dem_building{
             map_id_t                newTile;
 
             mutable gdalwrap::gdal  tile;
+            gdalwrap::gdal          meta;
             std::string             atlaas_path; //Where to store fused maps
 
             int                     sw;
@@ -29,9 +30,8 @@ namespace dem_building{
             float                   yOrigin;
             float                   zOrigin;
             float                   zScale;
-            float                   scale;
+            float                   scaleMap;
 
-            bool                    isInit = false;
             float                   variance_threshold;
             cells_info_t            gndinter; // ground info for vertical/flat unknown state
             bool                    use_swap;
@@ -44,7 +44,7 @@ namespace dem_building{
             void clean_up();
 
 
-            void init(int mapWidth, int mapHeight);
+            void init(double size_x,double size_y, double scale,double custom_x, double custom_y, double custom_z,int utm_zone, bool utm_north);
             void tile_load(int sx, int sy /*, fusedMap, current */);
             void tile_save(int sx, int sy /*, fusedMap, current */) const;
             bool load_data(/*fusedMap*/);
