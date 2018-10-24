@@ -7,7 +7,6 @@ namespace dem_building
 {
     mapFuser::mapFuser()
     {
-        atlaas_path = "/home/quentin/Desktop/test_tiles";
     }
     
     mapFuser::~mapFuser()

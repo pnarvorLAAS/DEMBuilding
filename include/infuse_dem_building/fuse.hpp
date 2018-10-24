@@ -53,7 +53,11 @@ namespace dem_building{
             bool fuse(/*fusedMap,roverMap*/);
             void merge(cell_info_t& dst, const cell_info_t& src) const; 
 
-            
+            bool setTileFolder(const std::string & folder)
+            {
+                atlaas_path = folder;
+            } 
+
             std::string tilepath(int x, int y) const 
             {
                 std::ostringstream oss;
