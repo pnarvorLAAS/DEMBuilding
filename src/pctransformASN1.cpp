@@ -69,9 +69,37 @@ namespace dem_building{
             return false;
         }
 
+        // DEBUG ////////////////////////////////////
+        
+        
+        std::cout << "Robot pose in world: [" << transformToWorld->data.translation.arr[0] << " " << transformToWorld->data.translation.arr[1]  << " " << transformToWorld->data.translation.arr[2] << "]" << std::endl;
+        // check if world pose is equal to the one inside the velodyne message
+
+        //if (transformToWorld->data.translation.arr[0] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[0] && transformToWorld->data.translation.arr[1] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[1] && transformToWorld->data.translation.arr[2] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[2])
+        //{
+        //    std::cout << "Positions are equal" << std::endl;
+        //}
+        //else
+        //{
+        //    std::cout << "Positions are different : " << std::endl;
+        //    std::cout << "Message: [" <<  pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[0] << " " << pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[1] << " " << pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[2] << "]" << std::endl;
+        //    std::cout << "Request: [" << transformToWorld->data.translation.arr[0] << " " << transformToWorld->data.translation.arr[1]  << " " << transformToWorld->data.translation.arr[2] << "]" << std::endl;
+        //}
+
+
+        //if (transformToWorld->data.orientation.arr[0] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[0] && transformToWorld->data.orientation.arr[1] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[1] && transformToWorld->data.orientation.arr[2] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[2] && transformToWorld->data.orientation.arr[3] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[3])
+        //{
+        //    std::cout << "Orientations are equal" << std::endl;
+        //}
+        //else
+        //{
+        //    std::cout << "Orientations are different: " << std::endl;
+        //    std::cout << "Message: [" <<  pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[0] << " " << pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[1] << " " << pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[2] << " " << pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.orientation.arr[3] << "]" << std::endl;
+        //    std::cout << "Request: [" << transformToWorld->data.orientation.arr[0] << " " << transformToWorld->data.orientation.arr[1]  << " " << transformToWorld->data.orientation.arr[2] <<" " << transformToWorld->data.orientation.arr[3] << "]" << std::endl;
+        //}
+
         
 
-        // DEBUG ////////////////////////////////////
 
         //std::cout << "Input R2W Pose" << std::endl;
         //printPose(*transformToWorld.get());
