@@ -72,7 +72,7 @@ namespace dem_building{
         // DEBUG ////////////////////////////////////
         
         
-        std::cout << "Robot pose in world: [" << transformToWorld->data.translation.arr[0] << " " << transformToWorld->data.translation.arr[1]  << " " << transformToWorld->data.translation.arr[2] << "]" << std::endl;
+        std::cout << "[Pc Transform] Robot pose in world: [" << transformToWorld->data.translation.arr[0] << " " << transformToWorld->data.translation.arr[1]  << " " << transformToWorld->data.translation.arr[2] << "]" << std::endl;
         // check if world pose is equal to the one inside the velodyne message
 
         //if (transformToWorld->data.translation.arr[0] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[0] && transformToWorld->data.translation.arr[1] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[1] && transformToWorld->data.translation.arr[2] == pcMsgInput->metadata.pose_fixedFrame_robotFrame.data.translation.arr[2])
