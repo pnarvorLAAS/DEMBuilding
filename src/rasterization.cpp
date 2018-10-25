@@ -105,6 +105,12 @@ namespace dem_building{
     void pcRasterizer::do_slide()
     {
         while (slide());
+
+        /* DEBUG */ 
+
+        std::cout << " [Rasterizer] UTM coordinates of the current top left pixel: " << meta.point_pix2utm(0,0)[0] <<", " <<  meta.point_pix2utm(0,0)[1] << std::endl;
+
+        /* DEBUG */
     }
 
     bool pcRasterizer::slide(/*sensor_xy, meta*/)
