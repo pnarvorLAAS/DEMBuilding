@@ -16,6 +16,15 @@ namespace dem_building
 
     void mapFuser::clean_up()
     {
+        tile_save(0,0);
+        tile_save(0,1);
+        tile_save(0, 2);
+        tile_save(1, 0);
+        tile_save(1, 1);
+        tile_save(1, 2);
+        tile_save(2, 0);
+        tile_save(2, 1);
+        tile_save(2, 2);
     }
 
 
@@ -57,7 +66,7 @@ namespace dem_building
 
     void mapFuser::tile_load(int sx, int sy)
     {
-        std::string filepath = tilepath(current[0] + sx, current[1] + sy);
+        std::string filepath = tilepath(current[0] + sx - 1, current[1] + sy - 1);
 
         if ( ! file_exists( filepath ) )
         {
@@ -117,7 +126,8 @@ namespace dem_building
             // update map transform used for merging the pointcloud
             point_xy_t tileUTM = meta.point_pix2utm(sx*sw,sy*sh);
             tile.set_transform(tileUTM[0], tileUTM[1],meta.get_scale_x(),meta.get_scale_y());
-            tile.save(tilepath(current[0] + sx, current[1] + sy) );
+            std::cout << "[FUSER] Saving tile: [" << current[0] + sx << ", " << current[1] + sy << "], coordinates [" << tileUTM[0] << ", " << tileUTM[1] << "]" << std::endl;
+            tile.save(tilepath(current[0] + sx - 1 , current[1] + sy - 1) );
         }
     }
 
@@ -130,7 +140,6 @@ namespace dem_building
 
         if (dx == 0 && dy == 0)
         {
-            std::cout << "On the right tile" << std::endl;
             return true;
         }
 
@@ -271,6 +280,8 @@ namespace dem_building
             tile_load(1, 2);
             tile_load(2, 2);
         }
+
+        meta.set_transform(utmNewMap[0],utmNewMap[1],meta.get_scale_x(),meta.get_scale_y());
         return true;
     }
 

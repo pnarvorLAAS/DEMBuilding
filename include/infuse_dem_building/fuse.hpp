@@ -26,10 +26,7 @@ namespace dem_building{
             size_t                  height;
             uint64_t                time_base;
 
-            float                   xOrigin;
-            float                   yOrigin;
-            float                   zOrigin;
-            float                   zScale;
+            point_xy_t              utmNewMap;
             float                   scaleMap;
 
             float                   variance_threshold;
@@ -61,7 +58,7 @@ namespace dem_building{
             std::string tilepath(int x, int y) const 
             {
                 std::ostringstream oss;
-                oss << atlaas_path << "/atlaas." << x << "x" << y << ".tif";
+                oss << atlaas_path << "/atlaas" << x << "x" << y << ".tif";
                 return oss.str();
             }
 

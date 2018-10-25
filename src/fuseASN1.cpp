@@ -44,7 +44,8 @@ namespace dem_building
 
         memcpy(&roverMap[0],&demMsgInput->data.data.arr[0],width*height*N_RASTER*sizeof(float));
         
-        meta.set_transform(demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[0],demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[1],meta.get_scale_x(),meta.get_scale_y());
+        utmNewMap[0] = demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[0];
+        utmNewMap[1] = demMsgInput->metadata.pose_fixedFrame_mapFrame.data.translation.arr[1],meta.get_scale_x(),meta.get_scale_y();
 
         std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
         
