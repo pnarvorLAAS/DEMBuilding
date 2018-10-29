@@ -167,14 +167,14 @@ namespace dem_building{
 
             // Fill Array3D metadata
             
-            demRasterMsgOutput->data.msgVersion = array3D_Version;
-            demRasterMsgOutput->data.rows = height;
-            demRasterMsgOutput->data.cols = width;
-            demRasterMsgOutput->data.channels = 7;
-            demRasterMsgOutput->data.depth = asn1Sccdepth_32F;
-            demRasterMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
+            demMsgOutput->data.msgVersion = array3D_Version;
+            demMsgOutput->data.rows = height;
+            demMsgOutput->data.cols = width;
+            demMsgOutput->data.channels = 7;
+            demMsgOutput->data.depth = asn1Sccdepth_32F;
+            demMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
 
-            demRasterMsgOutput->data.data.nCount = N_RASTER*height*width*sizeof(float);
+            demMsgOutput->data.data.nCount = N_RASTER*height*width*sizeof(float);
 
             // Fill actual Array3D data
             
