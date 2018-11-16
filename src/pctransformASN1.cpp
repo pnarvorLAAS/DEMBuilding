@@ -115,6 +115,13 @@ namespace dem_building{
         return true;
     }
 
+    void cloudTransformASN1::getPoseFromPointCloud()
+    {
+        transformToWorld.reset(new asn1SccTransformWithCovariance(pcMsgInput->metadata.pose_fixedFrame_robotFrame));
+        std::cout << "Input R2W Pose" << std::endl;
+        printPose(*transformToWorld.get());
+    }
+
     
     bool cloudTransformASN1::update_transform(/*pointCloudMsg,tfSensor2World*/)
     {

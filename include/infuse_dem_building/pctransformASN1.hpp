@@ -40,6 +40,7 @@ class cloudTransformASN1: public cloudTransform
         bool update_outputMsg(/*pcMsgOutput,asn1SccPointcloud, tfSensor2World*/);
         bool update_transform(/*pcMsgInput,tfSensor2World*/);
         bool update_pointCloud(/*pcMsgInput,asn1SccPointcloud*/);
+        void getPoseFromPointCloud();
         BitStream encode_message(/*pcMsgOutput*/);
         BitStream create_request(/*pcMsgInput*/);
 
