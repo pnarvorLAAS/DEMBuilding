@@ -13,8 +13,8 @@ namespace dem_building{
 class pcRasterizerASN1: public pcRasterizer
 {
     private:
-        std::shared_ptr<asn1SccPointcloud>  pcMsgInput;
-        std::shared_ptr<asn1SccMap>    demMsgOutput;
+            std::shared_ptr<asn1SccPointcloud>  pcMsgInput;
+            std::shared_ptr<asn1SccMap>    demMsgOutput;
             std::shared_ptr<asn1SccMap> demRasterMsgOutput;
 
             byte*                   perBuffer;

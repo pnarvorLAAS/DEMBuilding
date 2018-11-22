@@ -58,10 +58,12 @@ namespace dem_building{
 
     bool pcRasterizer::rasterize(/*pointCloud*/)
     {
+        float intensity_min = std::numeric_limits<float>::max();
+        float intensity_max = std::numeric_limits<float>::min();
         cell_info_t zeros{};
         std::fill(dyninter.begin(), dyninter.end(),zeros);
         size_t index;
-        float z_mean, n_pts, new_z;
+        float z_mean, n_pts, new_z, int_mean;
         // merge point-cloud in internal structure
         for (const auto& point : pointCloud) {
             index = meta.index_custom(point[0], point[1]);
@@ -76,6 +78,7 @@ namespace dem_building{
 
             if (n_pts < 1) {
                 info[N_POINTS] = 1;
+                info[INTENSITY] = point[3];
                 info[Z_MAX]  = new_z;
                 info[Z_MIN]  = new_z;
                 info[Z_MEAN] = new_z;
@@ -83,6 +86,7 @@ namespace dem_building{
                 info[DIST_SQ] = distance_sq(sensor_xy, {{point[0], point[1]}});
             } else {
                 z_mean = info[Z_MEAN];
+                int_mean = info[INTENSITY];
                 // increment N_POINTS
                 info[N_POINTS]++;
                 // update Z_MAX
@@ -97,8 +101,30 @@ namespace dem_building{
                    by the number of samples plus 1. */
                 info[Z_MEAN]    = (z_mean * n_pts + new_z) / info[N_POINTS];
                 info[VARIANCE] += (new_z - z_mean) * (new_z - info[Z_MEAN]);
+                info[INTENSITY] = (int_mean * n_pts + point[3]) / info[N_POINTS];
+                point[3] > intensity_max ? intensity_max = point[3]: intensity_max = intensity_max ;
+                point[3] < intensity_min ? intensity_min = point[3]: intensity_min = intensity_min ;
+                
             }
         }
+        std::cout << "Min (points before ASN.1) : " << intensity_min << std::endl;
+        std::cout << "Max (points before ASN.1) : " << intensity_max << std::endl;
+
+        intensity_min = std::numeric_limits<float>::max();
+        intensity_max = std::numeric_limits<float>::min();
+
+        for (int i = 0; i < width*height;i++)
+        {
+            if (dyninter[i][N_POINTS]>0)
+            {
+                if (dyninter[i][INTENSITY] > intensity_max){ intensity_max = dyninter[i][INTENSITY];}
+                if (dyninter[i][INTENSITY] < intensity_min){ intensity_min = dyninter[i][INTENSITY];}
+            }
+        }
+        
+        std::cout << "Min (map before ASN.1) : " << intensity_min << std::endl;
+        std::cout << "Max (map before ASN.1) : " << intensity_max << std::endl;
+
         return true;
     }
 

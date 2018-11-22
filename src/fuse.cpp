@@ -84,13 +84,14 @@ namespace dem_building
             for (eoi += sw; idx < eoi; idx++) 
             {
                 // tile to map
-                (*it)[N_POINTS] = tile.bands[N_POINTS][idx];
-                (*it)[Z_MAX]    = tile.bands[Z_MAX][idx];
-                (*it)[Z_MIN]    = tile.bands[Z_MIN][idx];
-                (*it)[Z_MEAN]   = tile.bands[Z_MEAN][idx];
-                (*it)[VARIANCE] = tile.bands[VARIANCE][idx];
-                (*it)[TIME]     = tile.bands[TIME][idx];
-                (*it)[DIST_SQ]  = tile.bands[DIST_SQ][idx];
+                (*it)[N_POINTS]  = tile.bands[N_POINTS][idx];
+                (*it)[Z_MAX]     = tile.bands[Z_MAX][idx];
+                (*it)[Z_MIN]     = tile.bands[Z_MIN][idx];
+                (*it)[Z_MEAN]    = tile.bands[Z_MEAN][idx];
+                (*it)[VARIANCE]  = tile.bands[VARIANCE][idx];
+                (*it)[TIME]      = tile.bands[TIME][idx];
+                (*it)[DIST_SQ]   = tile.bands[DIST_SQ][idx];
+                (*it)[INTENSITY] = tile.bands[INTENSITY][idx];
                 if ( diff and (*it)[N_POINTS] > 0.9 )
                 {
                     (*it)[TIME] -= diff;
@@ -111,13 +112,14 @@ namespace dem_building
             for (eoi += sw; idx < eoi; idx++) 
             {
                 // map to tile
-                tile.bands[N_POINTS][idx] = (*it)[N_POINTS];
-                tile.bands[Z_MAX][idx]    = (*it)[Z_MAX];
-                tile.bands[Z_MIN][idx]    = (*it)[Z_MIN];
-                tile.bands[Z_MEAN][idx]   = (*it)[Z_MEAN];
-                tile.bands[VARIANCE][idx] = (*it)[VARIANCE];
-                tile.bands[TIME][idx]     = (*it)[TIME];
-                tile.bands[DIST_SQ][idx]  = (*it)[DIST_SQ];
+                tile.bands[N_POINTS][idx]  = (*it)[N_POINTS];
+                tile.bands[Z_MAX][idx]     = (*it)[Z_MAX];
+                tile.bands[Z_MIN][idx]     = (*it)[Z_MIN];
+                tile.bands[Z_MEAN][idx]    = (*it)[Z_MEAN];
+                tile.bands[VARIANCE][idx]  = (*it)[VARIANCE];
+                tile.bands[TIME][idx]      = (*it)[TIME];
+                tile.bands[DIST_SQ][idx]   = (*it)[DIST_SQ];
+                tile.bands[INTENSITY][idx] = (*it)[INTENSITY];
                 it++;
             }
         }
@@ -384,6 +386,8 @@ namespace dem_building
         dst[VARIANCE] = ( src[VARIANCE] * (src[N_POINTS] - 1)
                 + dst[VARIANCE] * (dst[N_POINTS] - 1)
                 ) / (new_n_pts - 1);
+        
+        dst[INTENSITY] = ( (dst[INTENSITY] * dst[N_POINTS]) + (src[INTENSITY] * src[N_POINTS]) ) / new_n_pts;
         dst[N_POINTS] = new_n_pts;
     }
 }

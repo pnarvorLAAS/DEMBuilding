@@ -206,7 +206,6 @@ namespace dem_building{
             (*it)[0] = pcMsgInput->data.points.arr[i].arr[0]; 
             (*it)[1] = pcMsgInput->data.points.arr[i].arr[1]; 
             (*it)[2] = pcMsgInput->data.points.arr[i].arr[2]; 
-            (*it)[3] = pcMsgInput->data.intensity.arr[i]; 
             it++;
         }
 
@@ -230,7 +229,6 @@ namespace dem_building{
         pcMsgOutput->metadata.height = pcMsgInput->metadata.height;
         pcMsgOutput->metadata.width = pcMsgInput->metadata.width;
 
-        pcMsgOutput->metadata.hasFixedTransform = pcMsgInput->metadata.hasFixedTransform;
         pcMsgOutput->metadata.pose_robotFrame_sensorFrame = pcMsgInput->metadata.pose_robotFrame_sensorFrame;
         //pcMsgOutput->metadata.pose_fixedFrame_robotFrame = pcMsgInput->metadata.pose_fixedFrame_robotFrame;
 
@@ -252,6 +250,7 @@ namespace dem_building{
             it++;
         }
         pcMsgOutput->data.intensity.nCount = pcMsgInput->data.points.nCount;
+        pcMsgOutput->data.colors.nCount = pcMsgInput->data.colors.nCount;
         pcMsgOutput->data.points.nCount = pcMsgInput->data.points.nCount;
 
         //std::cout << "========================= " << std::endl;

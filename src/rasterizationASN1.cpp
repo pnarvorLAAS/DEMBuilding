@@ -127,7 +127,7 @@ namespace dem_building{
                 (*it)[0] = pcMsgInput->data.points.arr[i].arr[0]; 
                 (*it)[1] = pcMsgInput->data.points.arr[i].arr[1]; 
                 (*it)[2] = pcMsgInput->data.points.arr[i].arr[2]; 
-                (*it)[3] = pcMsgInput->data.intensity.arr[i];
+                (*it)[3] = (float)pcMsgInput->data.intensity.arr[i];
                 it++;
             }
             return true;
@@ -170,7 +170,7 @@ namespace dem_building{
             demMsgOutput->data.msgVersion = array3D_Version;
             demMsgOutput->data.rows = height;
             demMsgOutput->data.cols = width;
-            demMsgOutput->data.channels = 7;
+            demMsgOutput->data.channels = N_RASTER;
             demMsgOutput->data.depth = asn1Sccdepth_32F;
             demMsgOutput->data.rowSize = width*asn1Sccdepth_32F;
 
@@ -206,6 +206,7 @@ namespace dem_building{
 
             for (int i = 0; i < width*height; i++)
             {   
+                //((float*)demRasterMsgOutput->data.data.arr)[i]  = dyninter[i][Z_MEAN];
                 ((float*)demRasterMsgOutput->data.data.arr)[i]  = dyninter[i][Z_MEAN];
             }
         }

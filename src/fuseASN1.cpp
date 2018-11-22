@@ -50,15 +50,23 @@ namespace dem_building
         std::cout << "New tile : " << newTile[0] << ", " << newTile[1] << std::endl;
         
         /* DEBUG */
+        
+        float int_min = std::numeric_limits<float>::max();
+        float int_max = std::numeric_limits<float>::min();
+        
+        for (int i  = 0; i < width*height; i++)
+        {
+            if (roverMap[i][N_POINTS] > 0)
+            {
+                if (roverMap[i][INTENSITY] > int_max){ int_max = roverMap[i][INTENSITY];}
+                if (roverMap[i][INTENSITY] < int_min){ int_min = roverMap[i][INTENSITY];}
+            }
+        }
+        
+        std::cout << "Min at arrival: " << int_min << std::endl;
+        std::cout << "Max at arrival: " << int_max << std::endl;
 
-        //for (int i  = 0; i < width*height; i++)
-        //{
-        //    if (roverMap[i][Z_MEAN] != 0)
-        //    {
-        //        std::cout << "Found non zero: " << roverMap[i][Z_MEAN] <<  std::endl;
-        //        return 1;
-        //    }
-        //}
+
 
         /* DEBUG */
 
@@ -68,6 +76,9 @@ namespace dem_building
     bool mapFuserASN1::update_outputMsg()
     {
         // Fill metadata
+
+        float int_min = std::numeric_limits<float>::max();
+        float int_max = std::numeric_limits<float>::min();
 
         demRasterOutput->metadata.msgVersion = map_Version;
         
@@ -91,8 +102,11 @@ namespace dem_building
 
         for (int i = 0; i < width*height; i++)
         {   
-            ((float*)demRasterOutput->data.data.arr)[i]  = fusedMap[i][Z_MEAN];
+            if (fusedMap[i][INTENSITY] > int_max){ int_max = fusedMap[i][INTENSITY];}
+            if (fusedMap[i][INTENSITY] < int_min){ int_min = fusedMap[i][INTENSITY];}
+            ((float*)demRasterOutput->data.data.arr)[i]  = fusedMap[i][INTENSITY];
         }
+
     }
     
     BitStream mapFuserASN1::encode_message(/*demRasterOutput*/)
